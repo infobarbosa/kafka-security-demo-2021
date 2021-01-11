@@ -1,0 +1,12 @@
+.DS_Store
+*.log
+*.out
+*.iml
+.idea
+/target
+target
+*.jar
+*.class
+.vagrant
+Kafka-Security-master
+*.log.*.gz
