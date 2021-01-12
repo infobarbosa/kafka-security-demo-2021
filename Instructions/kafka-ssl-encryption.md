@@ -11,9 +11,6 @@ Vamos primeiramente testar as nossas aplicações clientes e constatar o quanto 
 
 Atencao! Esta sessao trata da geracao, assinatura e instalacao dos certificados em keystores e truststores.</br>
 Eh uma sessao bem trabalhosa e, na minha opiniao, nao eh onde devemos gastar muita energia pois nao tem a ver com o setup Kafka em si. </br>
-Te apresento duas opcoes:
-- Pilula vermelha: voce segue este roteiro e entende o que acontece nos bastidores;
-- Pilula azul: voce pula direto para a sessao de setup do Kafka.
 
 ### Gerando uma autoridade certificadora (CA)
 mkdir -p /home/ssl
@@ -85,7 +82,7 @@ Se estamos no caminho certo, o output será algo como:
 Alias name: mykey
 ...
 Certificate[1]:
-Owner: CN=kafka1.infobarbosa.github.com
+Owner: CN=brubeck
 Issuer: CN=Kafka-Security-CA
 ...
 Certificate[2]:
@@ -113,13 +110,13 @@ keytool -list -v -keystore /home/ssl/kafka.server.truststore.jks -storepass senh
 
 ## kafka
 
-Verifique se estah tudo certo:
+Verifique se está tudo certo:
 ```
 keytool -list -v -keystore /home/ssl/kafka.server.keystore.jks -storepass senhainsegura
 keytool -list -v -keystore /home/ssl/kafka.server.truststore.jks -storepass senhainsegura
 ```
 
-Perfeito! Agora vamos ajustar configurações no broker alterando o arquivo **/etc/kafka/server.properties**:
+Perfeito! Agora vamos ajustar configurações no broker alterando o arquivo `/etc/kafka/server.properties`:
 ```
 vi /etc/kafka/server.properties
 ```
@@ -150,7 +147,7 @@ kafka-server-stop.sh
 kafka-server-start.sh -daemon /opt/kafka/config/server.properties.ssl
 ```
 
-Um disclaimer sobre a truststore. Ela serve para (obvio!) assinalar quais hosts ou endpoints sao confiaveis. </br>
+Um disclaimer sobre a truststore. Ela serve para (óbvio!) assinalar quais hosts ou endpoints sao confiaveis. </br>
 A rigor, a aplicacao cliente se conecta no Kafka, nao o contrario. Ou seja, a aplicacao cliente precisa "confiar" nos hosts do cluster e assim apenas ela precisaria de uma truststore.
 **Entao por que entao eh necessario atribuir uma truststore no broker?"</br>
 A razao eh muito simples, lembre-se que quando estamos executando o Kafka em cluster, os brokers se comunicam por varios motivos, incluindo replicacao de dados da partitions leaders para as folowers. Dessa forma um broker1, por exemplo, atua como um cliente do broker2</br>
@@ -187,7 +184,7 @@ Agora veja se a importação está OK:
 keytool -list -v -keystore /home/ssl/kafka.client.truststore.jks -storepass senhainsegura
 ```
 
-A título de curiosidade, abra as classes SslProducer.java e SslConsumer.java, ambas debaixo de src/main/java/com/github/infobarbosa/kafka, e observe o uso das propriedades abaixo:
+A título de curiosidade, abra as classes `SslProducer.java` e `SslConsumer.java`, ambas debaixo de src/main/java/com/github/infobarbosa/kafka, e observe o uso das propriedades abaixo:
 ```
 BOOTSTRAP_SERVERS_CONFIG=brubeck:9093
 security.protocol=SSL
