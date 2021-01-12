@@ -1,6 +1,7 @@
 # Kafka com autenticacao SASL/GSSAPI 
 
 ## Instalando o Kerberos
+> https://help.ubuntu.com/community/Kerberos
 ´´´
 sudo apt install krb5-kdc krb5-admin-server krb5-config -y
 ´´´
