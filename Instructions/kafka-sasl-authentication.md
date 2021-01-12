@@ -2,66 +2,66 @@
 
 ## Instalando o Kerberos
 > https://help.ubuntu.com/community/Kerberos
-´´´
+```
 sudo apt install krb5-kdc krb5-admin-server krb5-config -y
-´´´
+```
 Durante a instalação devem ser informados o REALM e os servidores Kerberos e Admin. 
 Os valores que informei para esse lab foram "KAFKA.INFOBARBOSA", "brubeck" e "brubeck".
 Caso queira adaptar o REALM ao seu laboratório, lembre-se de alterar em todos os lugares onde essa configuração for requerida.
 
 Liberando regras de firewall
-´´´
+```
 sudo ufw allow 88/tcp
 sudo ufw allow 88/udp
-´´´
+```
 Caso algo dê errado e queira desinstalar:
 **Atenção! Risco de perda de dados e contas! Execute por sua conta e risco.**
-´´´
+```
 sudo apt purge -y krb5-kdc krb5-admin-server krb5-config krb5-locales krb5-user
-´´´ 
+``` 
 
 #### kadm5.acl
-´´´
+```
 sudo -i
 cd /etc/krb5kdc
 vi kadm5.acl
-´´´
+```
 Substituir pelo conteúdo a seguir:
-´´´
+```
 */admin@KAFKA.INFOBARBOSA *
 
-´´´ 
+``` 
 
 #### Configurações do database para o REALM KAFKA.INFOBARBOSA
-´´´
+```
 sudo -i
 kdb5_util create -s -r KAFKA.INFOBARBOSA -P senhainsegura
 kadmin.local -q "add_principal -pw senhainsegura admin/admin"
 
 service krb5-kdc restart
 service krb5-admin-server restart
-´´´
+```
 
 Caso algo de errado e você queira reiniciar o kerberos database:
 **Atenção! Perigo de perda definitiva de dados e contas. Execute por sua conta e risco!**
-´´´
+```
 kdb5_util destroy
-´´´
+```
 
 ## Criando as principals
 >> O trecho abaixo nao faz parte do setup do Kerberos
 >> Trata-se da criacao das principals/credenciais para o laboratorio
-´´´
+```
 kadmin.local -q "add_principal -randkey aplicacao1@KAFKA.INFOBARBOSA"
 kadmin.local -q "add_principal -randkey aplicacao2@KAFKA.INFOBARBOSA"
 kadmin.local -q "add_principal -randkey admin@KAFKA.INFOBARBOSA"
 
 kadmin.local -q "add_principal -randkey kafka/brubeck.localdomain@KAFKA.INFOBARBOSA"
-´´´
+```
 Caso algo dê errado e você queira eliminar uma principal:
-´´´
+```
 kadmin.local -q "delete_principal [INFORME AQUI A PRINCIPAL]"
-´´´
+```
 
 ## criando as keytabs
 mkdir -p /home/keytabs
@@ -71,7 +71,7 @@ kadmin.local -q "xst -kt /home/keytabs/admin.user.keytab admin@KAFKA.INFOBARBOSA
 kadmin.local -q "xst -kt /home/keytabs/kafka.service.keytab kafka/brubeck.localdomain@KAFKA.INFOBARBOSA"
 chown -R barbosa:barbosa /home/keytabs
 
-´´´ 
+``` 
 
 ## Configuração do Kafka
 
@@ -133,10 +133,10 @@ KafkaServer {
 
 ### Etapa 3 - Reiniciando o Kafka
 Para reiniciar o Kafka agora vamos incluir via variável de ambiente __KAFKA_OPTS__ o arquivo __kafka_server_jaas.conf__ que criamos há pouco.
-´´´
+```
 export KAFKA_OPTS="-Djava.security.auth.login.config=/opt/kafka/config/kafka_server_jaas.conf"
 kafka-server-start.sh /opt/kafka/config/server.properties.sasl-ssl
-´´´
+```
 
 #### kafka.service (OPCIONAL! Apenas se você configurou o kafka como serviço)
 
