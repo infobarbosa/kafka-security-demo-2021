@@ -1,12 +1,14 @@
 # Kafka com autenticacao SASL/GSSAPI 
+> Atenção! Esse lab considera minha máquina cujo hostname é _brubeck_.
+> Caso queira reproduzir, será necessário fazer as devidas adaptações para o seu hostname. ;)
 
 ## Instalando o Kerberos
 > https://help.ubuntu.com/community/Kerberos
 ```
 sudo apt install krb5-kdc krb5-admin-server krb5-config -y
 ```
-Durante a instalação devem ser informados o REALM e os servidores Kerberos e Admin. 
-Os valores que informei para esse lab foram "KAFKA.INFOBARBOSA", "brubeck" e "brubeck".
+Durante a instalação devem ser informados o REALM e os servidores Kerberos e Admin.<br> 
+Os valores que informei para esse lab foram "KAFKA.INFOBARBOSA", "brubeck" e "brubeck".<br>
 Caso queira adaptar o REALM ao seu laboratório, lembre-se de alterar em todos os lugares onde essa configuração for requerida.
 
 Liberando regras de firewall
@@ -14,7 +16,7 @@ Liberando regras de firewall
 sudo ufw allow 88/tcp
 sudo ufw allow 88/udp
 ```
-Caso algo dê errado e queira desinstalar:
+Caso algo dê errado e queira desinstalar:<br>
 **Atenção! Risco de perda de dados e contas! Execute por sua conta e risco.**
 ```
 sudo apt purge -y krb5-kdc krb5-admin-server krb5-config krb5-locales krb5-user
@@ -29,7 +31,6 @@ vi kadm5.acl
 Substituir pelo conteúdo a seguir:
 ```
 */admin@KAFKA.INFOBARBOSA *
-
 ``` 
 
 #### Configurações do database para o REALM KAFKA.INFOBARBOSA
@@ -42,35 +43,39 @@ service krb5-kdc restart
 service krb5-admin-server restart
 ```
 
-Caso algo de errado e você queira reiniciar o kerberos database:
+Caso algo de errado e você queira reiniciar o kerberos database:<br>
 **Atenção! Perigo de perda definitiva de dados e contas. Execute por sua conta e risco!**
 ```
 kdb5_util destroy
 ```
 
 ## Criando as principals
->> O trecho abaixo nao faz parte do setup do Kerberos
->> Trata-se da criacao das principals/credenciais para o laboratorio
+> O trecho abaixo nao faz parte do setup do Kerberos
+> Trata-se da criacao das principals/credenciais para o laboratorio
+
 ```
+sudo -i
 kadmin.local -q "add_principal -randkey aplicacao1@KAFKA.INFOBARBOSA"
 kadmin.local -q "add_principal -randkey aplicacao2@KAFKA.INFOBARBOSA"
 kadmin.local -q "add_principal -randkey admin@KAFKA.INFOBARBOSA"
 
 kadmin.local -q "add_principal -randkey kafka/brubeck.localdomain@KAFKA.INFOBARBOSA"
 ```
+
 Caso algo dê errado e você queira eliminar uma principal:
 ```
 kadmin.local -q "delete_principal [INFORME AQUI A PRINCIPAL]"
 ```
 
-## criando as keytabs
+## Criando as keytabs
+```
+sudo -i
 mkdir -p /home/keytabs
 kadmin.local -q "xst -kt /home/keytabs/aplicacao1.user.keytab aplicacao1@KAFKA.INFOBARBOSA"
 kadmin.local -q "xst -kt /home/keytabs/aplicacao2.user.keytab aplicacao2@KAFKA.INFOBARBOSA"
 kadmin.local -q "xst -kt /home/keytabs/admin.user.keytab admin@KAFKA.INFOBARBOSA"
 kadmin.local -q "xst -kt /home/keytabs/kafka.service.keytab kafka/brubeck.localdomain@KAFKA.INFOBARBOSA"
 chown -R barbosa:barbosa /home/keytabs
-
 ``` 
 
 ## Configuração do Kafka
@@ -94,7 +99,7 @@ Acrescente um listener para SASL_SSL escutando a porta 9094
 listeners=PLAINTEXT://0.0.0.0:9092,SSL://0.0.0.0:9093,SASL_SSL://0.0.0.0:9094
 ```
 
-Agora encontre o parametro "advertised.listeners" e faca o mesmo:
+Agora encontre o parametro "advertised.listeners" e faça o mesmo:
 ```
 advertised.listeners=PLAINTEXT://brubeck:9092,SSL://brubeck:9093
 ```
