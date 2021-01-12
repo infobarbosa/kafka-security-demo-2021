@@ -17,7 +17,7 @@ wget https://downloads.apache.org/kafka/2.7.0/kafka_2.13-2.7.0.tgz
 bin/zookeeper-server-start.sh -daemon config/zookeeper.properties
 
 ### Start do Kafka
-bin/kafka-server-start.sh -daemon config/server.properties
+bin/kafka-server-start.sh -daemon config/server.properties.inseguro
 
 #### Listagem de tópicos
 bin/kafka-topics.sh --zookeeper localhost:2181 --list
