@@ -232,21 +232,21 @@ O importante é remover o porta 9092 do listener o mais cedo possível.
 Quando tiver finalizado sua configuração de listener no broker será parecida com isso:
 ```
 listeners=PLAINTEXT://0.0.0.0:9093
-advertised.listeners=PLAINTEXT://kafka1.infobarbosa.github.com:9093
+advertised.listeners=PLAINTEXT://brubeck:9093
 ```
 ## Encriptacao Intebroker
 
 O setup que fizemos ate aqui garante apenas a encripcao de dados entre a aplicacao cliente e o cluster kafka, mas nao a comunicacao entre os diferentes brokers.
 
-Se voce fizer um _tcpdump_ em um broker qualquer vai perceber que a porta 9092 ainda esta em uso. Basicamente eh por essa porta que as particoes _followers_ fazem fetch pra se manterem sincronizadas com as particoes _leaders_.
+Se voce fizer um `tcpdump` em um broker qualquer vai perceber que a porta 9092 ainda esta em uso. Basicamente eh por essa porta que as particoes _followers_ fazem fetch pra se manterem sincronizadas com as particoes _leaders_.
 ```
 vagrant ssh kafka1
 sudo -i
-tcpdump -v -XX  -i enp0s8 'port 9092' -w dump9092.txt -c 1000
-tcpdump -v -XX  -i enp0s8 'port 9093' -w dump9093.txt -c 1000
+tcpdump -v -XX  -i lo 'port 9092' -w dump9092.txt -c 1000
+tcpdump -v -XX  -i lo 'port 9093' -w dump9093.txt -c 1000
 ```
 
-Para habilitar a encriptacao inclusive entre os brokers, abra o arquivo _server.properties_ e acrescente a seguinte linha.
+Para habilitar a encriptacao inclusive entre os brokers, abra o arquivo `server.properties` e acrescente a seguinte linha.
 ```
 security.inter.broker.protocol=SSL
 ```
