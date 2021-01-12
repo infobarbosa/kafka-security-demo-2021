@@ -92,7 +92,7 @@ vi /etc/kafka/server.properties
 ```
 
 #### Listeners
-Encontre o parâmetro _listeners_ abaixo:
+Encontre o parâmetro `listeners` abaixo:
 ```
 listeners=PLAINTEXT://0.0.0.0:9092,SSL://0.0.0.0:9093
 ```
@@ -102,7 +102,7 @@ Acrescente um listener para SASL_SSL escutando a porta 9094
 listeners=PLAINTEXT://0.0.0.0:9092,SSL://0.0.0.0:9093,SASL_SSL://0.0.0.0:9094
 ```
 
-Agora encontre o parâmetro "advertised.listeners" e faça o mesmo:
+Agora encontre o parâmetro `advertised.listeners` e faça o mesmo:
 ```
 advertised.listeners=PLAINTEXT://brubeck:9092,SSL://brubeck:9093
 ```
@@ -113,7 +113,7 @@ advertised.listeners=PLAINTEXT://brubeck:9092,SSL://brubeck:9093,SASL_SSL://brub
 ```
 
 #### Outras configs do broker
-Agora inclua os parâmetros abaixo (sugiro que seja após "advertised.listeners"  pra ficar mais facil de debugar)
+Agora inclua os parâmetros abaixo (sugiro que seja após `advertised.listeners`  pra ficar mais fácil de debugar)
 ```
 sasl.enabled.mechanisms=GSSAPI
 sasl.kerberos.service.name=kafka
@@ -186,7 +186,7 @@ Environment="KAFKA_OPTS= \
 Status "Running" é só sucesso!
 
 ```
-sudo journalctl -n 100 -u kafka
+sudo journalctl -n 100 -u kafka 
 
 sudo grep EndPoint /var/log/kafka/server.log
 ```
