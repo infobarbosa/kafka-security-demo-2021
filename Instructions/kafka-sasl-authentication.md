@@ -1,14 +1,17 @@
-# Kafka com autenticacao SASL/GSSAPI 
-> Atenção! Esse lab considera minha máquina cujo hostname é _brubeck_.
+# Kafka com autenticação SASL/GSSAPI 
+> Atenção! Esse lab considera minha máquina cujo hostname é `brubeck` e a interface de rede `lo`.
 > Caso queira reproduzir, será necessário fazer as devidas adaptações para o seu hostname. ;)
 
 ## Instalando o Kerberos
+> **Atenção! Risco de perda de dados e contas! Execute por sua conta e risco.**
+
 > https://help.ubuntu.com/community/Kerberos
+
 ```
 sudo apt install krb5-kdc krb5-admin-server krb5-config -y
 ```
 Durante a instalação devem ser informados o REALM e os servidores Kerberos e Admin.<br> 
-Os valores que informei para esse lab foram "KAFKA.INFOBARBOSA", "brubeck" e "brubeck".<br>
+Os valores que informei para esse lab foram `KAFKA.INFOBARBOSA`, `brubeck` e `brubeck`.<br>
 Caso queira adaptar o REALM ao seu laboratório, lembre-se de alterar em todos os lugares onde essa configuração for requerida.
 
 Liberando regras de firewall
@@ -17,7 +20,7 @@ sudo ufw allow 88/tcp
 sudo ufw allow 88/udp
 ```
 Caso algo dê errado e queira desinstalar:<br>
-**Atenção! Risco de perda de dados e contas! Execute por sua conta e risco.**
+> **Atenção! Risco de perda de dados e contas! Execute por sua conta e risco.**
 ```
 sudo apt purge -y krb5-kdc krb5-admin-server krb5-config krb5-locales krb5-user
 ``` 
@@ -44,14 +47,14 @@ service krb5-admin-server restart
 ```
 
 Caso algo de errado e você queira reiniciar o kerberos database:<br>
-**Atenção! Perigo de perda definitiva de dados e contas. Execute por sua conta e risco!**
+> **Atenção! Perigo de perda definitiva de dados e contas. Execute por sua conta e risco!**
 ```
 kdb5_util destroy
 ```
 
 ## Criando as principals
-> O trecho abaixo nao faz parte do setup do Kerberos
-> Trata-se da criacao das principals/credenciais para o laboratorio
+> O trecho abaixo não faz parte do setup do Kerberos.<br>
+> Trata-se da criação das principals/credenciais para o laboratório
 
 ```
 sudo -i
@@ -81,15 +84,15 @@ chown -R barbosa:barbosa /home/keytabs
 ## Configuração do Kafka
 
 ### Etapa 1 - server.properties
->> Para fins didáticos vou utilizar um segundo arquivo __server.properties.sasl-ssl__
+>> Para fins didáticos vou utilizar um segundo arquivo `server.properties.sasl-ssl`
 
-Abra o arquivo _server.properties_ e adicionar o endpoint para SASL
+Abra o arquivo `server.properties` e adicione o endpoint para SASL
 ```
 vi /etc/kafka/server.properties
 ```
 
 #### Listeners
-Encontre o parametro _listeners_ abaixo:
+Encontre o parâmetro _listeners_ abaixo:
 ```
 listeners=PLAINTEXT://0.0.0.0:9092,SSL://0.0.0.0:9093
 ```
@@ -99,7 +102,7 @@ Acrescente um listener para SASL_SSL escutando a porta 9094
 listeners=PLAINTEXT://0.0.0.0:9092,SSL://0.0.0.0:9093,SASL_SSL://0.0.0.0:9094
 ```
 
-Agora encontre o parametro "advertised.listeners" e faça o mesmo:
+Agora encontre o parâmetro "advertised.listeners" e faça o mesmo:
 ```
 advertised.listeners=PLAINTEXT://brubeck:9092,SSL://brubeck:9093
 ```
@@ -110,21 +113,21 @@ advertised.listeners=PLAINTEXT://brubeck:9092,SSL://brubeck:9093,SASL_SSL://brub
 ```
 
 #### Outras configs do broker
-Agora inclua os dois parametros abaixo (sugiro que seja após "advertised.listeners"  pra ficar mais facil de debugar)
+Agora inclua os parâmetros abaixo (sugiro que seja após "advertised.listeners"  pra ficar mais facil de debugar)
 ```
 sasl.enabled.mechanisms=GSSAPI
 sasl.kerberos.service.name=kafka
 ssl.client.auth=required
 ```
 
-_GSSAPI_ indica o uso de Kerberos como mecanismo habilitado de autenticacao.
+`GSSAPI` indica o uso de Kerberos como mecanismo habilitado de autenticação.
 
-_kafka_ é a principal que criamos no Kerberos há pouco.
+`kafka` é a principal que criamos no Kerberos há pouco.
 
 ### Etapa 2 - JAAS
 
-Vamos agora configurar um arquivo **kafka_server_jaas.conf** com o seguinte conteudo:
->> No lab eu considero que o arquivo foi criado debaixo do diretorio $KAFKA_HOME/config. 
+Vamos agora configurar um arquivo `kafka_server_jaas.conf` com o seguinte conteúdo:
+>> No lab eu considero que o arquivo foi criado debaixo do diretorio `$KAFKA_HOME/config`. 
 
 ```
 KafkaServer {
@@ -137,7 +140,7 @@ KafkaServer {
 ```
 
 ### Etapa 3 - Reiniciando o Kafka
-Para reiniciar o Kafka agora vamos incluir via variável de ambiente __KAFKA_OPTS__ o arquivo __kafka_server_jaas.conf__ que criamos há pouco.
+Para reiniciar o Kafka agora vamos incluir via variável de ambiente `KAFKA_OPTS` o arquivo `kafka_server_jaas.conf` que criamos há pouco: 
 ```
 export KAFKA_OPTS="-Djava.security.auth.login.config=/opt/kafka/config/kafka_server_jaas.conf"
 kafka-server-start.sh /opt/kafka/config/server.properties.sasl-ssl
@@ -145,14 +148,14 @@ kafka-server-start.sh /opt/kafka/config/server.properties.sasl-ssl
 
 #### kafka.service (OPCIONAL! Apenas se você configurou o kafka como serviço)
 
-Eh hora de ajustar o daemon _kafka.service_ para que o broker reconheca o arquivo "kafka_server_jaas.conf" durante a inicialização.
+Ajustar o daemon `kafka.service` para que o broker reconheca o arquivo `kafka_server_jaas.conf` durante a inicialização.
 ```
 sudo vi /etc/systemd/system/kafka.service
 ```
 
-Voce deve acrescentar o parametro de JVM abaixo atraves da variavel de ambiente KAFKA_OPTS.
+Você deve acrescentar o parâmetro de JVM abaixo através da variável de ambiente `KAFKA_OPTS`.
 ```
--Djava.security.auth.login.config=/home/vagrant/kafka_server_jaas.conf
+-Djava.security.auth.login.config=/opt/kafka/config/kafka_server_jaas.conf
 ```
 
 O trecho que agora estah assim:
@@ -166,7 +169,7 @@ Environment="KAFKA_OPTS= \
 	-Djava.net.preferIPv4Stack=true"
 ```
 
-Ficarah assim:
+Ficará assim:
 ```
 Environment="KAFKA_OPTS= \
 	-Dcom.sun.management.jmxremote.authenticate=false \
@@ -175,12 +178,12 @@ Environment="KAFKA_OPTS= \
 	-Dcom.sun.management.jmxremote.port=9999 \
 	-Dcom.sun.management.jmxremote.rmi.port=9999 \
 	-Djava.net.preferIPv4Stack=true \
-  -Djava.security.auth.login.config=/home/vagrant/kafka_server_jaas.conf"
+  -Djava.security.auth.login.config=/opt/kafka/config/kafka_server_jaas.conf"
 ```
 
 ### Etapa 4 - Checagem
 
-Status "Running" eh soh sucesso!
+Status "Running" é só sucesso!
 
 ```
 sudo journalctl -n 100 -u kafka
@@ -193,17 +196,12 @@ Encontrando a porta 9094 LISTEN
 netstat -na | grep 9094
 ```
 
-Agora na maquina do Kerberos:
-```
-vagrant ssh kerberos
-```
-
-Verifique os logs de autenticacao dos brokers:
+Agora no log do Kerberos verifique os logs de autenticação dos brokers:
 ```
 sudo cat /var/log/krb5kdc.log
 ```
 
-Voce deve encontrar uma linha de log de autenticacao para cada broker mais ou menos parecido com isso:
+Você deve encontrar uma linha de log de autenticação para cada broker mais ou menos parecido com isso:
 ```
 Jul 07 17:57:09 kerberos.infobarbosa.github.com krb5kdc[5304](info): AS_REQ (4 etypes {18 17 16 23}) 192.168.56.13: ISSUE: authtime 1562522229, etypes {rep=18 tkt=18 ses=18}, kafka/kafka3.infobarbosa.github.com@KAFKA.INFOBARBOSA for krbtgt/KAFKA.INFOBARBOSA@KAFKA.INFOBARBOSA
 ```
@@ -274,12 +272,10 @@ Da mesma forma serah possivel checar mensagens nos logs:
 
 Agora vamos checar os logs do Kerberos:
 ```
-vagrant ssh kerberos
-
 sudo cat /var/log/krb5kdc.log
 ```
 
-Perceba as mensagens que apontam a autenticacao das aplicacoes clientes em cada broker:
+Perceba as mensagens que apontam a autenticação das aplicacoes clientes em cada broker:
 
 **aplicacao1**
 ```
@@ -294,25 +290,25 @@ Jul 07 21:04:42 kerberos.infobarbosa.github.com krb5kdc[5304](info): TGS_REQ (4 
 Jul 07 21:04:42 kerberos.infobarbosa.github.com krb5kdc[5304](info): TGS_REQ (4 etypes {18 17 16 23}) 192.168.56.14: ISSUE: authtime 1562533481, etypes {rep=18 tkt=18 ses=18}, aplicacao2@KAFKA.INFOBARBOSA for kafka/kafka3.infobarbosa.github.com@KAFKA.INFOBARBOSA
 ```
 
-#### Encriptacao
+#### Encriptação
 
-Vamos checar se a encriptacao continua funcionando.
+Vamos checar se a encriptação continua funcionando.
 No segundo terminal para kafka-cliente, encerre a aplicacao2.
 ```
 [CTRL+c]
 
 sudo -i
 
-sudo tcpdump -v -XX  -i enp0s8 'port 9094' -w dump.txt -c 1000
+sudo tcpdump -v -XX  -i lo 'port 9094' -w dump.txt -c 1000
 
 cat dump.txt
 ```
 
-Atenção! **enp0s8** é a interface de rede utilizada para host-only na minha máquina.
-Se o comando nao funcionar entao verifique quais interfaces estao funcionando via **ifconfig** ou **tcpdump --list-interfaces**
+Atenção! `lo` é a interface de rede utilizada para host-only na minha máquina.
+Se o comando não funcionar entao verifique quais interfaces estao funcionando via `ifconfig` ou `tcpdump --list-interfaces`
 
-Eh isso, pessoal! Autenticacao kerberos e encriptacao TLS funcionando. Espero que tenha funcionado pra voces tambem.
+Eh isso, pessoal! autenticação kerberos e encriptacao TLS funcionando. Espero que tenha funcionado pra você também.
 
-Ateh a proxima!
+Até a próxima!
 
 Barbosa
