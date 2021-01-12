@@ -1,4 +1,7 @@
 .DS_Store
+.project
+.classpath
+.settings
 .vscode
 *.log
 *.out
