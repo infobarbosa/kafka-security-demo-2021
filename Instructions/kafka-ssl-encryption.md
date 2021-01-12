@@ -101,7 +101,7 @@ Issuer: CN=Kafka-Security-CA
 
 ***Trustore***
 
-Cria a truststore e importa o certificado publico da CA (**ca-cert**) para ela:
+Cria a truststore e importa o certificado publico da CA (`ca-cert`) para ela:
 ```
 keytool -keystore /home/ssl/kafka.server.truststore.jks -alias CARoot -import -file /home/ssl/ca-cert -storepass senhainsegura -keypass senhainsegura -noprompt
 ```
