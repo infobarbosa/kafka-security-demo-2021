@@ -23,4 +23,5 @@ Esse comando pode ser executado tanto no servidor do Kafka como na aplicação c
 ```
 sudo tcpdump -v -XX  -i lo 'port 9092' -c 10
 sudo tcpdump -v -XX  -i lo 'port 9092' -c 100 -w dump-inseguro.txt
+sudo tcpdump -v -XX  -i lo 'port 9092' -c 1000 -x > dump-inseguro.txt
 ```
