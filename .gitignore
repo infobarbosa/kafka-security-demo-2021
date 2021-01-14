@@ -14,3 +14,5 @@ target
 .vagrant
 Kafka-Security-master
 *.log.*.gz
+dump*.txt
+
