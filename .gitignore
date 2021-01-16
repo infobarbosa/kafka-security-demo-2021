@@ -2,6 +2,7 @@
 .project
 .classpath
 .settings
+*/.settings
 .vscode
 *.log
 *.out
@@ -15,4 +16,5 @@ target
 Kafka-Security-master
 *.log.*.gz
 dump*.txt
+*/org.eclipse.jdt.core.prefs
 
