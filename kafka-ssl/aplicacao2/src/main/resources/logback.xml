@@ -9,11 +9,12 @@
     </appender>
 
     <!-- This appender to catch all except trace -->
+    <property name="LOG_DIR" value="/tmp" />
     <appender name="DEBUG_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>consumer.log</file>
+        <file>${LOG_DIR}/consumer-ssl.log</file>
         <append>true</append>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>consumer.log.%d{yyyy-MM-dd}.gz</fileNamePattern>
+            <fileNamePattern>${LOG_DIR}/consumer-ssl.log.%d{yyyy-MM-dd}.gz</fileNamePattern>
         </rollingPolicy>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>DEBUG</level>
@@ -21,6 +22,8 @@
         <encoder>
             <pattern>%d{ISO8601} %-5p [%c{3}] \(%t:%X{}\) %m%n</pattern>
         </encoder>
+        <maxHistory>1</maxHistory>
+        <totalSizeCap>20MB</totalSizeCap>        
     </appender>
 
     <root level="info">
