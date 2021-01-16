@@ -24,7 +24,7 @@ public class SslConsumer {
         properties.put(ConsumerConfig.GROUP_ID_CONFIG, "consumer-tutorial-group");
         properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         properties.put("security.protocol", "SSL");
-        properties.put("ssl.truststore.location", "/home/ssl/kafka.client.truststore.jks");
+        properties.put("ssl.truststore.location", "/tmp/ssl/kafka.client.truststore.jks");
         properties.put("ssl.truststore.password", "senhainsegura");
 
         final String topic = "teste";

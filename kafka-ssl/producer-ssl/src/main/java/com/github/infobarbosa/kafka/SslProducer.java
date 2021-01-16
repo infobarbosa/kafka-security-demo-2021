@@ -20,7 +20,7 @@ public class SslProducer {
         properties.put(ProducerConfig.LINGER_MS_CONFIG, "100");
         properties.put(ProducerConfig.RETRIES_CONFIG, "3");
         properties.put("security.protocol", "SSL");
-        properties.put("ssl.truststore.location", "/home/ssl/kafka.client.truststore.jks");
+        properties.put("ssl.truststore.location", "/tmp/ssl/kafka.client.truststore.jks");
         properties.put("ssl.truststore.password", "senhainsegura");
 
 

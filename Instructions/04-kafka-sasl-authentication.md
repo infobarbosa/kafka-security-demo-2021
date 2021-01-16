@@ -58,8 +58,8 @@ kdb5_util destroy
 
 ```
 sudo -i
-kadmin.local -q "add_principal -randkey aplicacao1@KAFKA.INFOBARBOSA"
-kadmin.local -q "add_principal -randkey aplicacao2@KAFKA.INFOBARBOSA"
+kadmin.local -q "add_principal -randkey producer@KAFKA.INFOBARBOSA"
+kadmin.local -q "add_principal -randkey consumer@KAFKA.INFOBARBOSA"
 kadmin.local -q "add_principal -randkey admin@KAFKA.INFOBARBOSA"
 
 kadmin.local -q "add_principal -randkey kafka/brubeck.localdomain@KAFKA.INFOBARBOSA"
@@ -73,12 +73,12 @@ kadmin.local -q "delete_principal [INFORME AQUI A PRINCIPAL]"
 ## Criando as keytabs
 ```
 sudo -i
-mkdir -p /home/keytabs
-kadmin.local -q "xst -kt /home/keytabs/aplicacao1.user.keytab aplicacao1@KAFKA.INFOBARBOSA"
-kadmin.local -q "xst -kt /home/keytabs/aplicacao2.user.keytab aplicacao2@KAFKA.INFOBARBOSA"
-kadmin.local -q "xst -kt /home/keytabs/admin.user.keytab admin@KAFKA.INFOBARBOSA"
-kadmin.local -q "xst -kt /home/keytabs/kafka.service.keytab kafka/brubeck.localdomain@KAFKA.INFOBARBOSA"
-chown -R barbosa:barbosa /home/keytabs
+mkdir -p /tmp/keytabs
+kadmin.local -q "xst -kt /tmp/keytabs/producer123.user.keytab producer123@KAFKA.INFOBARBOSA"
+kadmin.local -q "xst -kt /tmp/keytabs/consumer123.user.keytab consumer123@KAFKA.INFOBARBOSA"
+kadmin.local -q "xst -kt /tmp/keytabs/admin.user.keytab admin@KAFKA.INFOBARBOSA"
+kadmin.local -q "xst -kt /tmp/keytabs/kafka.service.keytab kafka/brubeck.localdomain@KAFKA.INFOBARBOSA"
+chown -R barbosa:barbosa /tmp/keytabs
 ``` 
 
 ## Configuração do Kafka
@@ -134,7 +134,7 @@ KafkaServer {
     com.sun.security.auth.module.Krb5LoginModule required
     useKeyTab=true
     storeKey=true
-    keyTab="/home/keytabs/kafka.service.keytab"
+    keyTab="/tmp/keytabs/kafka.service.keytab"
     principal="kafka/brubeck@KAFKA.INFOBARBOSA";
 };
 ```
@@ -210,13 +210,13 @@ Jul 07 17:57:09 kerberos.infobarbosa.github.com krb5kdc[5304](info): AS_REQ (4 e
 
 Essa eh a parte mais facil. Nao eh preciso fazer alteracoes em codigo. :)
 
-Primeiro, abra dois terminais, um para a aplicacao1 e outro para a aplicacao2. Mantenha o terminal para o kerberos aberto tambem.
+Primeiro, abra dois terminais, um para a producer-authorized e outro para a consumer-authorized. Mantenha o terminal para o kerberos aberto tambem.
 
-#### aplicacao1
+#### producer-authorized
 ```
-cd aplicacao1
+cd producer-authorized
 
-java -cp target/aplicacao1-1.0-SNAPSHOT-jar-with-dependencies.jar
+java -cp target/producer-authorized.jar
 ```
 
 Imediatamente a aplicacao devera iniciar a producao de mensagens no topico 'teste' no Kafka.
@@ -230,7 +230,7 @@ As mensagens devem aparecer no console mais ou menos como a seguir:
 Tambem eh interessante olhar os logs. Imediatamente apos o inicio da execucao, as primeiras linhas terao uma indicacao do handshake da aplicacao com o Kerberos. Algo assim:
 ```
 2019-07-07 20:52:15 - Set SASL client state to SEND_APIVERSIONS_REQUEST
-2019-07-07 20:52:15 - Creating SaslClient: client=aplicacao1@KAFKA.INFOBARBOSA;service=kafka;serviceHostname=brubeck;mechs=[GSSAPI]
+2019-07-07 20:52:15 - Creating SaslClient: client=producer-authorized@KAFKA.INFOBARBOSA;service=kafka;serviceHostname=brubeck;mechs=[GSSAPI]
 2019-07-07 20:52:15 - Added sensor with name node--1.bytes-sent
 2019-07-07 20:52:15 - Added sensor with name node--1.bytes-received
 2019-07-07 20:52:15 - Added sensor with name node--1.latency
@@ -251,14 +251,14 @@ Tambem eh interessante olhar os logs. Imediatamente apos o inicio da execucao, a
 2019-07-07 20:52:16 - Updated cluster metadata version 2 to Cluster(id = 1NkbeldpQxWCi9fM6cGHMg, nodes = [kafka3.infobarbosa.github.com:9094 (id: 3 rack: r1), brubeck:9094 (id: 1 rack: r1), kafka2.infobarbosa.github.com:9094 (id: 2 rack: r1)], partitions = [Partition(topic = teste, partition = 2, leader = 1, replicas = [2,1,3], isr = [1,2,3], offlineReplicas = []), Partition(topic = teste, partition = 1, leader = 1, replicas = [1,3,2], isr = [1,2,3], offlineReplicas = []), Partition(topic = teste, partition = 4, leader = 1, replicas = [1,2,3], isr = [1,2,3], offlineReplicas = []), Partition(topic = teste, partition = 3, leader = 3, replicas = [3,1,2], isr = [1,2,3], offlineReplicas = []), Partition(topic = teste, partition = 0, leader = 3, replicas = [3,2,1], isr = [1,2,3], offlineReplicas = []), Partition(topic = teste, partition = 10, leader = 1, replicas = [1,2,3], isr = [1,2,3], offlineReplicas = []), Partition(topic = teste, partition = 9, leader = 3, replicas = [3,1,2], isr = [1,2,3], offlineReplicas = []), Partition(topic = teste, partition = 11, leader = 2, replicas = [2,3,1], isr = [1,2,3], offlineReplicas = []), Partition(topic = teste, partition = 6, leader = 3, replicas = [3,2,1], isr = [1,2,3], offlineReplicas = []), Partition(topic = teste, partition = 5, leader = 2, replicas = [2,3,1], isr = [1,2,3], offlineReplicas = []), Partition(topic = teste, partition = 8, leader = 1, replicas = [2,1,3], isr = [1,2,3], offlineReplicas = []), Partition(topic = teste, partition = 7, leader = 1, replicas = [1,3,2], isr = [1,2,3], offlineReplicas = [])])
 2019-07-07 20:52:16 - [Producer clientId=producer-tutorial] Initiating connection to node brubeck:9094 (id: 1 rack: r1)
 2019-07-07 20:52:16 - Set SASL client state to SEND_APIVERSIONS_REQUEST
-2019-07-07 20:52:16 - Creating SaslClient: client=aplicacao1@KAFKA.INFOBARBOSA;service=kafka;serviceHostname=brubeck;mechs=[GSSAPI]
+2019-07-07 20:52:16 - Creating SaslClient: client=producer-authorized@KAFKA.INFOBARBOSA;service=kafka;serviceHostname=brubeck;mechs=[GSSAPI]
 ```
 
-#### aplicacao2
+#### consumer-authorized
 ```
-cd aplicacao2
+cd consumer-authorized
 
-java -cp target/aplicacao2-1.0-SNAPSHOT-jar-with-dependencies.jar 
+java -cp target/consumer-authorized.jar 
 ```
 
 Da mesma forma serah possivel checar mensagens nos logs:
@@ -277,23 +277,23 @@ sudo cat /var/log/krb5kdc.log
 
 Perceba as mensagens que apontam a autenticação das aplicacoes clientes em cada broker:
 
-**aplicacao1**
+**producer-authorized**
 ```
-Jul 07 20:52:17 kerberos.infobarbosa.github.com krb5kdc[5304](info): TGS_REQ (4 etypes {18 17 16 23}) 192.168.56.14: ISSUE: authtime 1562532736, etypes {rep=18 tkt=18 ses=18}, aplicacao1@KAFKA.INFOBARBOSA for kafka/brubeck@KAFKA.INFOBARBOSA
+Jul 07 20:52:17 kerberos.infobarbosa.github.com krb5kdc[5304](info): TGS_REQ (4 etypes {18 17 16 23}) 192.168.56.14: ISSUE: authtime 1562532736, etypes {rep=18 tkt=18 ses=18}, producer-authorized@KAFKA.INFOBARBOSA for kafka/brubeck@KAFKA.INFOBARBOSA
 
 ```
 
-**aplicacao2**
+**consumer-authorized**
 ```
-Jul 07 21:04:42 kerberos.infobarbosa.github.com krb5kdc[5304](info): TGS_REQ (4 etypes {18 17 16 23}) 192.168.56.14: ISSUE: authtime 1562533481, etypes {rep=18 tkt=18 ses=18}, aplicacao2@KAFKA.INFOBARBOSA for kafka/brubeck@KAFKA.INFOBARBOSA
-Jul 07 21:04:42 kerberos.infobarbosa.github.com krb5kdc[5304](info): TGS_REQ (4 etypes {18 17 16 23}) 192.168.56.14: ISSUE: authtime 1562533481, etypes {rep=18 tkt=18 ses=18}, aplicacao2@KAFKA.INFOBARBOSA for kafka/kafka2.infobarbosa.github.com@KAFKA.INFOBARBOSA
-Jul 07 21:04:42 kerberos.infobarbosa.github.com krb5kdc[5304](info): TGS_REQ (4 etypes {18 17 16 23}) 192.168.56.14: ISSUE: authtime 1562533481, etypes {rep=18 tkt=18 ses=18}, aplicacao2@KAFKA.INFOBARBOSA for kafka/kafka3.infobarbosa.github.com@KAFKA.INFOBARBOSA
+Jul 07 21:04:42 kerberos.infobarbosa.github.com krb5kdc[5304](info): TGS_REQ (4 etypes {18 17 16 23}) 192.168.56.14: ISSUE: authtime 1562533481, etypes {rep=18 tkt=18 ses=18}, consumer-authorized@KAFKA.INFOBARBOSA for kafka/brubeck@KAFKA.INFOBARBOSA
+Jul 07 21:04:42 kerberos.infobarbosa.github.com krb5kdc[5304](info): TGS_REQ (4 etypes {18 17 16 23}) 192.168.56.14: ISSUE: authtime 1562533481, etypes {rep=18 tkt=18 ses=18}, consumer-authorized@KAFKA.INFOBARBOSA for kafka/kafka2.infobarbosa.github.com@KAFKA.INFOBARBOSA
+Jul 07 21:04:42 kerberos.infobarbosa.github.com krb5kdc[5304](info): TGS_REQ (4 etypes {18 17 16 23}) 192.168.56.14: ISSUE: authtime 1562533481, etypes {rep=18 tkt=18 ses=18}, consumer-authorized@KAFKA.INFOBARBOSA for kafka/kafka3.infobarbosa.github.com@KAFKA.INFOBARBOSA
 ```
 
 #### Encriptação
 
 Vamos checar se a encriptação continua funcionando.
-No segundo terminal para kafka-cliente, encerre a aplicacao2.
+No segundo terminal para kafka-cliente, encerre a consumer-authorized.
 ```
 [CTRL+c]
 

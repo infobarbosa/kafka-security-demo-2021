@@ -9,43 +9,43 @@ Vamos primeiramente testar as nossas aplicações clientes e constatar o quanto 
 
 ## Certificados
 
-Atencao! Esta sessao trata da geracao, assinatura e instalacao dos certificados em keystores e truststores.</br>
+Atenção! Esta sessao trata da geracao, assinatura e instalacao dos certificados em keystores e truststores.</br>
 Eh uma sessao bem trabalhosa e, na minha opiniao, nao eh onde devemos gastar muita energia pois nao tem a ver com o setup Kafka em si. </br>
 
 ### Gerando uma autoridade certificadora (CA)
-mkdir -p /home/ssl
-openssl req -new -newkey rsa:4096 -days 365 -x509 -subj "/CN=Kafka-Security-CA" -keyout /home/ssl/ca-key -out /home/ssl/ca-cert -nodes
+mkdir -p /tmp/ssl
+openssl req -new -newkey rsa:4096 -days 365 -x509 -subj "/CN=Kafka-Security-CA" -keyout /tmp/ssl/ca-key -out /tmp/ssl/ca-cert -nodes
 
 ### Gerando o certificado e a keystore
 
 Atente-se aos nomes dos hosts (FQDN).
 
 ```
-keytool -genkey -keystore /home/ssl/kafka.server.keystore.jks -validity 365 -storepass senhainsegura -keypass senhainsegura  -dname "CN=brubeck" -storetype pkcs12
+keytool -genkey -keystore /tmp/ssl/kafka.server.keystore.jks -validity 365 -storepass senhainsegura -keypass senhainsegura  -dname "CN=brubeck" -storetype pkcs12
 
 ls -latrh
 ```
 Vamos checar o conteúdo da keystore
 ```
-keytool -list -v -keystore /home/ssl/kafka.server.keystore.jks -storepass senhainsegura
+keytool -list -v -keystore /tmp/ssl/kafka.server.keystore.jks -storepass senhainsegura
 ```
 
 ### Certification request
 
 É hora de criar o certification request file. Esse arquivo deve ser enviado para a **autoridade certificadora (CA)** pra que seja assinado.
 ```
-keytool -keystore /home/ssl/kafka.server.keystore.jks -certreq -file /home/ssl/kafka-cert-file -storepass senhainsegura -keypass senhainsegura
+keytool -keystore /tmp/ssl/kafka.server.keystore.jks -certreq -file /tmp/ssl/kafka-cert-file -storepass senhainsegura -keypass senhainsegura
 ```
 
 ### Assinatura do certificado
 
 Verifique se o arquivo está acessível:
 ```
-ls -ltrh /home/ssl/kafka-cert-file
+ls -ltrh /tmp/ssl/kafka-cert-file
 ```
 Assinando o certificado:
 ```
-openssl x509 -req -CA /home/ssl/ca-cert -CAkey /home/ssl/ca-key -in /home/ssl/kafka-cert-file -out /home/ssl/kafka-cert-signed -days 365 -CAcreateserial -passin pass:senhainsegura
+openssl x509 -req -CA /tmp/ssl/ca-cert -CAkey /tmp/ssl/ca-key -in /tmp/ssl/kafka-cert-file -out /tmp/ssl/kafka-cert-signed -days 365 -CAcreateserial -passin pass:senhainsegura
 
 ```
 
@@ -53,14 +53,14 @@ openssl x509 -req -CA /home/ssl/ca-cert -CAkey /home/ssl/ca-key -in /home/ssl/ka
 
 Vamos checar o certificado assinado.
 ```
-keytool -printcert -v -file /home/ssl/kafka-cert-signed
+keytool -printcert -v -file /tmp/ssl/kafka-cert-signed
 ```
 
 ### Instalando os certificados
 
 Antes de seguir, talvez você queira checar a keystore pra ter a visão do antes e depois:
 ```
-keytool -list -v -keystore /home/ssl/kafka.server.keystore.jks -storepass senhainsegura
+keytool -list -v -keystore /tmp/ssl/kafka.server.keystore.jks -storepass senhainsegura
 ```
 Hora de executar as devidas importações.
 
@@ -68,13 +68,13 @@ Hora de executar as devidas importações.
 
 Importando a CA e o certificado assinado para a keystore:
 ```
-keytool -keystore /home/ssl/kafka.server.keystore.jks -alias CARoot -import -file /home/ssl/ca-cert -storepass senhainsegura -keypass senhainsegura -noprompt
+keytool -keystore /tmp/ssl/kafka.server.keystore.jks -alias CARoot -import -file /tmp/ssl/ca-cert -storepass senhainsegura -keypass senhainsegura -noprompt
 
-keytool -keystore /home/ssl/kafka.server.keystore.jks -import -file /home/ssl/kafka-cert-signed -storepass senhainsegura -keypass senhainsegura -noprompt
+keytool -keystore /tmp/ssl/kafka.server.keystore.jks -import -file /tmp/ssl/kafka-cert-signed -storepass senhainsegura -keypass senhainsegura -noprompt
 ```
 Checando se deu certo:
 ```
-keytool -list -v -keystore /home/ssl/kafka.server.keystore.jks -storepass senhainsegura
+keytool -list -v -keystore /tmp/ssl/kafka.server.keystore.jks -storepass senhainsegura
 ```
 Se estamos no caminho certo, o output será algo como:
 ```
@@ -100,11 +100,11 @@ Issuer: CN=Kafka-Security-CA
 
 Cria a truststore e importa o certificado publico da CA (`ca-cert`) para ela:
 ```
-keytool -keystore /home/ssl/kafka.server.truststore.jks -alias CARoot -import -file /home/ssl/ca-cert -storepass senhainsegura -keypass senhainsegura -noprompt
+keytool -keystore /tmp/ssl/kafka.server.truststore.jks -alias CARoot -import -file /tmp/ssl/ca-cert -storepass senhainsegura -keypass senhainsegura -noprompt
 ```
 Checando se deu certo:
 ```
-keytool -list -v -keystore /home/ssl/kafka.server.truststore.jks -storepass senhainsegura
+keytool -list -v -keystore /tmp/ssl/kafka.server.truststore.jks -storepass senhainsegura
 
 ```
 
@@ -112,8 +112,8 @@ keytool -list -v -keystore /home/ssl/kafka.server.truststore.jks -storepass senh
 
 Verifique se está tudo certo:
 ```
-keytool -list -v -keystore /home/ssl/kafka.server.keystore.jks -storepass senhainsegura
-keytool -list -v -keystore /home/ssl/kafka.server.truststore.jks -storepass senhainsegura
+keytool -list -v -keystore /tmp/ssl/kafka.server.keystore.jks -storepass senhainsegura
+keytool -list -v -keystore /tmp/ssl/kafka.server.truststore.jks -storepass senhainsegura
 ```
 
 Perfeito! Agora vamos ajustar configurações no broker alterando o arquivo `/etc/kafka/server.properties`:
@@ -133,10 +133,10 @@ advertised.listeners=PLAINTEXT://brubeck:9092,SSL://brubeck:9093
 
 Acrescente também as linhas abaixo:
 ```
-ssl.keystore.location=/home/ssl/kafka.server.keystore.jks
+ssl.keystore.location=/tmp/ssl/kafka.server.keystore.jks
 ssl.keystore.password=senhainsegura
 ssl.key.password=senhainsegura
-ssl.truststore.location=/home/ssl/kafka.server.truststore.jks
+ssl.truststore.location=/tmp/ssl/kafka.server.truststore.jks
 ssl.truststore.password=senhainsegura
 ```
 **Atente-se aa referencia a correta keystore e truststore de acordo com o broker.**
@@ -177,18 +177,18 @@ Algumas pessoas esperam que seja a mesma do servidor, mas não é necessário.
 Gera a truststore importando a chave publica da autoridade certificadora (CA):
 
 ```
-keytool -keystore /home/ssl/kafka.client.truststore.jks -alias CARoot -import -file /home/ssl/ca-cert  -storepass senhainsegura -keypass senhainsegura -noprompt
+keytool -keystore /tmp/ssl/kafka.client.truststore.jks -alias CARoot -import -file /tmp/ssl/ca-cert  -storepass senhainsegura -keypass senhainsegura -noprompt
 ```
 Agora veja se a importação está OK:
 ```
-keytool -list -v -keystore /home/ssl/kafka.client.truststore.jks -storepass senhainsegura
+keytool -list -v -keystore /tmp/ssl/kafka.client.truststore.jks -storepass senhainsegura
 ```
 
 A título de curiosidade, abra as classes `SslProducer.java` e `SslConsumer.java`, ambas debaixo de src/main/java/com/github/infobarbosa/kafka, e observe o uso das propriedades abaixo:
 ```
 BOOTSTRAP_SERVERS_CONFIG=brubeck:9093
 security.protocol=SSL
-ssl.truststore.location=/home/ssl/kafka.client.truststore.jks
+ssl.truststore.location=/tmp/ssl/kafka.client.truststore.jks
 ssl.truststore.password=weakpass
 ```
 Obviamente essas e outras propriedades não devem ser hard coded. Como boa prática devem ser injetadas via arquivo de configuração ou variáveis de ambiente.

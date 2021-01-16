@@ -21,10 +21,10 @@ public class SslAuthenticationProducer {
         properties.put(ProducerConfig.RETRIES_CONFIG, "3");
 
         properties.put("security.protocol", "SSL");
-        properties.put("ssl.truststore.location", "/home/ssl/kafka.client.truststore.jks");
+        properties.put("ssl.truststore.location", "/tmp/ssl/kafka.client.truststore.jks");
         properties.put("ssl.truststore.password", "senhainsegura");
 
-        properties.put("ssl.keystore.location", "/home/ssl/kafka.client.keystore.jks");
+        properties.put("ssl.keystore.location", "/tmp/ssl/kafka.client.keystore.jks");
         properties.put("ssl.keystore.password", "senhainsegura");
         properties.put("ssl.key.password", "senhainsegura");
 

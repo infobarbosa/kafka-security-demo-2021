@@ -14,16 +14,16 @@ Eh uma sessão bem trabalhosa e, na minha opinião, nao é onde devemos gastar m
 
 ### Criando um certificado para a aplicação cliente:
 ```
-keytool -genkey -keystore /home/ssl/kafka.client.keystore.jks -validity 365 -storepass senhainsegura -keypass senhainsegura  -dname "CN=brubeck" -alias kafka-client -storetype pkcs12
+keytool -genkey -keystore /tmp/ssl/kafka.client.keystore.jks -validity 365 -storepass senhainsegura -keypass senhainsegura  -dname "CN=brubeck" -alias kafka-client -storetype pkcs12
 
-keytool -list -v -keystore /home/ssl/kafka.client.keystore.jks -storepass senhainsegura
+keytool -list -v -keystore /tmp/ssl/kafka.client.keystore.jks -storepass senhainsegura
 ```
 
 ### Criação do request file
 
 Crie o request file que será assinado pela CA
 ```
-keytool -keystore /home/ssl/kafka.client.keystore.jks -certreq -file /home/ssl/client-cert-sign-request -alias kafka-client -storepass senhainsegura -keypass senhainsegura
+keytool -keystore /tmp/ssl/kafka.client.keystore.jks -certreq -file /tmp/ssl/client-cert-sign-request -alias kafka-client -storepass senhainsegura -keypass senhainsegura
 
 ```
 
@@ -31,19 +31,19 @@ keytool -keystore /home/ssl/kafka.client.keystore.jks -certreq -file /home/ssl/c
 
 Assine o certificado utilizando a CA:
 ```
-openssl x509 -req -CA /home/ssl/ca-cert -CAkey /home/ssl/ca-key -in /client-cert-sign-request -out /home/ssl/client-cert-signed -days 365 -CAcreateserial -passin pass:senhainsegura
+openssl x509 -req -CA /tmp/ssl/ca-cert -CAkey /tmp/ssl/ca-key -in /client-cert-sign-request -out /tmp/ssl/client-cert-signed -days 365 -CAcreateserial -passin pass:senhainsegura
 ```
 
 > **Atenção** <br/>
-> É possível que você tenha problemas de permissão ao aquivo */home/ssl/ca-cert.srl*, algo como
+> É possível que você tenha problemas de permissão ao aquivo */tmp/ssl/ca-cert.srl*, algo como
 ```
 ...
-/home/ssl/ca-cert.srl: Permission denied
+/tmp/ssl/ca-cert.srl: Permission denied
 ...
 ```
 > Para resolver, basta executar o comando a seguir:
 ```
-sudo chown barbosa:barbosa /home/ssl/ca-cert.srl
+sudo chown barbosa:barbosa /tmp/ssl/ca-cert.srl
 ```
 > Pronto! É só executar novamente o comando de assinatura do certificado
 
@@ -51,7 +51,7 @@ sudo chown barbosa:barbosa /home/ssl/ca-cert.srl
 
 Vamos checar o certificado assinado.
 ```
-keytool -printcert -v -file /home/ssl/client-cert-signed
+keytool -printcert -v -file /tmp/ssl/client-cert-signed
 ```
 Se o output tiver algo como...
 ```
@@ -62,12 +62,12 @@ Issuer: CN=Kafka-Security-CA
 
 Crie a relação de confiaça importanto a chave pública da CA para a Keystore:
 ```
-keytool -keystore /home/ssl/kafka.client.keystore.jks -alias CARoot -import -file /home/ssl/ca-cert -storepass senhainsegura -keypass senhainsegura -noprompt
+keytool -keystore /tmp/ssl/kafka.client.keystore.jks -alias CARoot -import -file /tmp/ssl/ca-cert -storepass senhainsegura -keypass senhainsegura -noprompt
 ```
 
 Agora importe o certificado assinado para a keystore:
 ```
-keytool -keystore /home/ssl/kafka.client.keystore.jks -import -file /home/ssl/client-cert-signed -alias kafka-client -storepass senhainsegura -keypass senhainsegura -noprompt
+keytool -keystore /tmp/ssl/kafka.client.keystore.jks -import -file /tmp/ssl/client-cert-signed -alias kafka-client -storepass senhainsegura -keypass senhainsegura -noprompt
 ```
 
 > **Atenção!**<br/>
@@ -79,7 +79,7 @@ keytool error: java.lang.Exception: Failed to establish chain from reply
 
 Verifique se está tudo lá:
 ```
-keytool -list -v -keystore /home/ssl/kafka.client.keystore.jks -storepass senhainsegura
+keytool -list -v -keystore /tmp/ssl/kafka.client.keystore.jks -storepass senhainsegura
 ```
 
 O output será algo assim:
@@ -105,7 +105,7 @@ As classes produtora e consumidora são, respectivamente:
 
 Perceba a presença das linhas abaixo:
 ```
-properties.put("ssl.keystore.location", "/home/ssl/kafka.client.keystore.jks");
+properties.put("ssl.keystore.location", "/tmp/ssl/kafka.client.keystore.jks");
 properties.put("ssl.keystore.password", "senhainsegura");
 properties.put("ssl.key.password", "senhainsegura");
 ```
