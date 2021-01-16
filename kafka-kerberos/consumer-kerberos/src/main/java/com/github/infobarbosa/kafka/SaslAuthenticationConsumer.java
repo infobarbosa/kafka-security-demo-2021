@@ -26,8 +26,8 @@ public class SaslAuthenticationConsumer {
 
         properties.put("security.protocol", "SASL_SSL");
         properties.put("sasl.kerberos.service.name", "kafka");
-        properties.put("sasl.jaas.config", "com.sun.security.auth.module.Krb5LoginModule required useKeyTab=true storeKey=true keyTab=\"/home/keytabs/aplicacao2.user.keytab\" principal=\"aplicacao2@KAFKA.INFOBARBOSA\";");
-        properties.put("ssl.truststore.location", "/home/ssl/kafka.client.truststore.jks");
+        properties.put("sasl.jaas.config", "com.sun.security.auth.module.Krb5LoginModule required useKeyTab=true storeKey=true keyTab=\"/tmp/keytabs/consumer123.user.keytab\" principal=\"consumer123@KAFKA.INFOBARBOSA\";");
+        properties.put("ssl.truststore.location", "/tmp/ssl/kafka.client.truststore.jks");
         properties.put("ssl.truststore.password", "senhainsegura");
 
         final String topic = "teste";
