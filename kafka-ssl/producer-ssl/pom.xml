@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.github.infobarbosa</groupId>
-    <artifactId>aplicacao1</artifactId>
+    <artifactId>producer-ssl</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <url>http://maven.apache.org</url>
