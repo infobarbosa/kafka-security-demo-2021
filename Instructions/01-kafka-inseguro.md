@@ -2,17 +2,18 @@
 
 #### Janela 1
 ```
-cd ~/aplicacao1
+cd ./kafka-inseguro/producer-inseguro
 mvn clean package
-java -cp target/aplicacao1-1.0-SNAPSHOT-jar-with-dependencies.jar 
+java -jar target/producer-inseguro.jar
 [Control + c]
 ```
 
 #### Janela 2
 ```
-cd ~/aplicacao2
+cd ./kafka-inseguro/consumer-inseguro
 mvn clean package
-java -cp target/aplicacao2-1.0-SNAPSHOT-jar-with-dependencies.jar
+java -jar target/consumer-inseguro.jar
+[Control + c]
 ```
 
 #### Janela 3
