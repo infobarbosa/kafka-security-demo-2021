@@ -6,108 +6,68 @@ No exercício a seguir estou assumindo que você executou a primeira parte. Caso
 
 ## Let's go!
 
-Se ainda não tiver subido o laboratório, essa é a hora:
-```
-vagrant up
-```
 
 ## Aplicação Cliente
 
-Atencao! Esta sessao trata da geracao, assinatura e instalacao dos certificados em keystore.</br>
-Eh uma sessao bem trabalhosa e, na minha opiniao, nao eh onde devemos gastar muita energia pois nao tem a ver com o setup Kafka em si. </br>
-Te apresento duas opcoes:
-- Pilula vermelha: voce segue este roteiro e entende o que acontece nos bastidores;
-- Pilula azul: execute a importacao da keystore abaixo e depois pule direto para a sessao de setup do Kafka.
+Atenção! Esta sessão trata da geracao, assinatura e instalação dos certificados em keystore.</br>
+Eh uma sessão bem trabalhosa e, na minha opinião, nao é onde devemos gastar muita energia pois não tem a ver com o setup Kafka em si. </br>
 
-Se optou pela pilula azul entao execute os comandos abaixo na instancia da aplicação cliente e depois pule direto para a sessao de inspecao do codigo fonte:
+### Criando um certificado para a aplicação cliente:
 ```
-vagrant ssh kafka-client
+keytool -genkey -keystore /home/ssl/kafka.client.keystore.jks -validity 365 -storepass senhainsegura -keypass senhainsegura  -dname "CN=brubeck" -alias kafka-client -storetype pkcs12
 
-mkdir -p /home/vagrant/ssl
-scp -o "StrictHostKeyChecking no" vagrant@ca:/home/vagrant/ssl/kafka.client.keystore.jks /home/vagrant/ssl
-```
-
-Se optou pela pilula vermelha entao comece criando um certificado para a aplicação cliente:
-```
-export CLIPASS=weakpass
-
-keytool -genkey -keystore /home/vagrant/ssl/kafka.client.keystore.jks -validity 365 -storepass $CLIPASS -keypass $CLIPASS  -dname "CN=kafka-client.infobarbosa.github.com" -alias kafka-client -storetype pkcs12
-
-keytool -list -v -keystore /home/vagrant/ssl/kafka.client.keystore.jks -storepass $CLIPASS
+keytool -list -v -keystore /home/ssl/kafka.client.keystore.jks -storepass senhainsegura
 ```
 
 ### Criação do request file
 
 Crie o request file que será assinado pela CA
 ```
-keytool -keystore /home/vagrant/ssl/kafka.client.keystore.jks -certreq -file /vagrant/client-cert-sign-request -alias kafka-client -storepass $CLIPASS -keypass $CLIPASS
-
-```
-### Enviando para a CA
-
-Vamos simular o envio da requisição para a CA:
-```
-scp -o "StrictHostKeyChecking no" /home/vagrant/ssl/client-cert-sign-request vagrant@ca:/home/vagrant/ssl
+keytool -keystore /home/ssl/kafka.client.keystore.jks -certreq -file /home/ssl/client-cert-sign-request -alias kafka-client -storepass senhainsegura -keypass senhainsegura
 
 ```
 
 ### Assinatura do certificado
 
-Abra outra janela e entre na máquina da autoridade certificadora:
-```
-vagrant ssh ca
-```
-
 Assine o certificado utilizando a CA:
-
 ```
-openssl x509 -req -CA /home/vagrant/ssl/ca-cert -CAkey /home/vagrant/ssl/ca-key -in /vagrant/client-cert-sign-request -out /home/vagrant/ssl/client-cert-signed -days 365 -CAcreateserial -passin pass:weakpass
+openssl x509 -req -CA /home/ssl/ca-cert -CAkey /home/ssl/ca-key -in /client-cert-sign-request -out /home/ssl/client-cert-signed -days 365 -CAcreateserial -passin pass:senhainsegura
 ```
 
 > **Atenção** <br/>
-> É possível que você tenha problemas de permissão ao aquivo */home/vagrant/ssl/ca-cert.srl*, algo como
+> É possível que você tenha problemas de permissão ao aquivo */home/ssl/ca-cert.srl*, algo como
 ```
 ...
-/home/vagrant/ssl/ca-cert.srl: Permission denied
+/home/ssl/ca-cert.srl: Permission denied
 ...
 ```
 > Para resolver, basta executar o comando a seguir:
 ```
-sudo chown vagrant:vagrant /home/vagrant/ssl/ca-cert.srl
+sudo chown barbosa:barbosa /home/ssl/ca-cert.srl
 ```
 > Pronto! É só executar novamente o comando de assinatura do certificado
 
 ### Kafka Cliente, setup da keystore
 
-Se fechou a sessão com a aplicação cliente, vai precisar disto:
-```
-vagrant ssh kafka-client
-
-export CLIPASS=weakpass
-```
-Importando o certificado assinado:
-```
-scp -o "StrictHostKeyChecking no" vagrant@ca:/home/vagrant/ssl/client-cert-signed /home/vagrant/ssl
-```
 Vamos checar o certificado assinado.
 ```
-keytool -printcert -v -file /home/vagrant/ssl/client-cert-signed
+keytool -printcert -v -file /home/ssl/client-cert-signed
 ```
 Se o output tiver algo como...
 ```
-Owner: CN=kafka-client.infobarbosa.github.com
+Owner: CN=brubeck
 Issuer: CN=Kafka-Security-CA
 ```
 ...então estamos no caminho certo.
 
 Crie a relação de confiaça importanto a chave pública da CA para a Keystore:
 ```
-keytool -keystore ~/ssl/kafka.client.keystore.jks -alias CARoot -import -file /vagrant/ca-cert -storepass $CLIPASS -keypass $CLIPASS -noprompt
+keytool -keystore /home/ssl/kafka.client.keystore.jks -alias CARoot -import -file /home/ssl/ca-cert -storepass senhainsegura -keypass senhainsegura -noprompt
 ```
 
 Agora importe o certificado assinado para a keystore:
 ```
-keytool -keystore /home/vagrant/ssl/kafka.client.keystore.jks -import -file /vagrant/client-cert-signed -alias kafka-client -storepass $CLIPASS -keypass $CLIPASS -noprompt
+keytool -keystore /home/ssl/kafka.client.keystore.jks -import -file /home/ssl/client-cert-signed -alias kafka-client -storepass senhainsegura -keypass senhainsegura -noprompt
 ```
 
 > **Atenção!**<br/>
@@ -119,7 +79,7 @@ keytool error: java.lang.Exception: Failed to establish chain from reply
 
 Verifique se está tudo lá:
 ```
-keytool -list -v -keystore /home/vagrant/ssl/kafka.client.keystore.jks -storepass $CLIPASS
+keytool -list -v -keystore /home/ssl/kafka.client.keystore.jks -storepass senhainsegura
 ```
 
 O output será algo assim:
@@ -128,7 +88,7 @@ O output será algo assim:
 Your keystore contains 2 entries
 ...
 Certificate[1]:
-Owner: CN=kafka-client.infobarbosa.github.com
+Owner: CN=brubeck
 Issuer: CN=Kafka-Security-CA
 ...
 Certificate[2]:
@@ -140,14 +100,14 @@ Issuer: CN=Kafka-Security-CA
 
 Dê uma olhada no códido das aplicações cliente.
 As classes produtora e consumidora são, respectivamente:
-* /home/vagrant/kafka-producer/src/main/java/com/github/infobarbosa/kafka/SslAuthenticationProducer.java
-* /home/vagrant/kafka-consumer/src/main/java/com/github/infobarbosa/kafka/SslAuthenticationConsumer.java
+* .../src/main/java/com/github/infobarbosa/kafka/SslAuthenticationProducer.java
+* .../src/main/java/com/github/infobarbosa/kafka/SslAuthenticationConsumer.java
 
 Perceba a presença das linhas abaixo:
 ```
-properties.put("ssl.keystore.location", "/home/vagrant/ssl/kafka.client.keystore.jks");
-properties.put("ssl.keystore.password", "weakpass");
-properties.put("ssl.key.password", "weakpass");
+properties.put("ssl.keystore.location", "/home/ssl/kafka.client.keystore.jks");
+properties.put("ssl.keystore.password", "senhainsegura");
+properties.put("ssl.key.password", "senhainsegura");
 ```
 
 > Obviamente essas e outras propriedades não devem ser hard coded. Como boa prática devem ser injetadas via arquivo de configuração ou variáveis de ambiente.
@@ -168,23 +128,13 @@ Inclua a nova propriedade **ssl.client.auth**:
 ```
 ssl.client.auth=required
 ```
-Reinicie o Kafka:
-```
-sudo systemctl restart kafka
-```
-Verifique se o serviço subiu:
-```
-sudo systemctl status kafka
-```
+Reinicie o Kafka.
 
 ## Hora do teste!
 
 #### Janela 1
 
-Na máquina kafka-client
 ```
-vagrant ssh kafka-client
-
 cd ~/aplicacao1
 ```
 Se ainda não tiver feito o build da aplicação, essa é a hora:
@@ -198,10 +148,7 @@ java -cp target/aplicacao1-1.0-SNAPSHOT-jar-with-dependencies.jar com.github.inf
 
 #### Janela 2
 
-Na máquina kafka-client
 ```
-vagrant ssh kafka-client
-
 cd ~/aplicacao2
 ```
 Se ainda não tiver feito o build da aplicação, essa é a hora:
@@ -213,18 +160,21 @@ Agora execute a aplicação consumidora:
 java -cp target/aplicacao2-1.0-SNAPSHOT-jar-with-dependencies.jar com.github.infobarbosa.kafka.SslAuthenticationConsumer
 ```
 
-#### Janela 3. tcpdump na porta do servico para "escutar" o conteudo trafegado.
+#### Janela 3. tcpdump na porta do servico para "escutar" o conteúdo trafegado.
 
-Esse comando pode ser executado tanto na maquina do Kafka (kafka1) como na aplicacao cliente (kafka-client)
-Atenção! **enp0s8** é a interface de rede utilizada para host-only na minha máquina.
-Se o comando nao funcionar entao verifique quais interfaces estao funcionando via **ifconfig** ou **tcpdump --list-interfaces**
+Esse comando pode ser executado tanto na máquina do Kafka (kafka1) como na aplicação cliente (kafka-client)
+Atenção! **lo** é a interface de rede (loopback) utilizada na minha máquina.
+Se o comando não funcionar então verifique quais interfaces estão em uso via **ifconfig** ou **tcpdump --list-interfaces**
 ```
-sudo tcpdump -v -XX  -i enp0s8
+sudo tcpdump -v -XX  -i lo
 ```
 Caso queira enviar o log para um arquivo para analisar melhor:
 ```
 sudo -i
-tcpdump -v -XX  -i enp0s8 -w dump.txt -c 100
+tcpdump -v -XX  -i lo -c 100 -w dump-2way-authn.txt
+#ou
+tcpdump -v -XX  -i lo -c 100 -x > dump-2way-authn.txt 
+
 ```
 
 #### Janela 4
@@ -233,8 +183,7 @@ Lembra que habilitamos a propriedade "ssl.client.auth" com o valor "required" no
 A partir de agora as aplicações cliente que tinham apenas a encriptação via SSL não conseguirão mais se comunicar com o cluster Kafka.
 
 ```
-vagrant ssh kafka-client
-cd ~/aplicacao1
+cd .../aplicacao1
 java -cp target/aplicacao1-1.0-SNAPSHOT-jar-with-dependencies.jar com.github.infobarbosa.kafka.SslProducer
 ```
 
@@ -248,8 +197,7 @@ Caused by: javax.net.ssl.SSLProtocolException: Handshake message sequence violat
 
 O mesmo vale para a aplicação consumidora:
 ```
-vagrant ssh kafka-client
-cd ~/aplicacao2
+cd .../aplicacao2
 java -cp target/aplicacao2-1.0-SNAPSHOT-jar-with-dependencies.jar com.github.infobarbosa.kafka.SslConsumer
 ```
 
