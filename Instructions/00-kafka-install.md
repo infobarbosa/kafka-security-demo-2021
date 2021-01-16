@@ -41,11 +41,11 @@ Agora vamos iniciar o Kafka inicialmente com a configuração insegura:
 kafka-server-start.sh -daemon /etc/kafka/server.properties.inseguro
 ```
 #### Listagem de tópicos
-bin/kafka-topics.sh --zookeeper localhost:2181 --list
+kafka-topics.sh --zookeeper localhost:2181 --list
 
 #### Tópico teste
-bin/kafka-topics.sh --zookeeper localhost:2181 --create --topic teste --partitions 1  --replication-factor 1
+kafka-topics.sh --zookeeper localhost:2181 --create --topic topico-teste --partitions 1  --replication-factor 1
 
 #### Descrevendo o tópico teste
-bin/kafka-topics.sh --zookeeper localhost:2181 --describe --topic teste
+kafka-topics.sh --zookeeper localhost:2181 --describe --topic topico-teste
 
