@@ -15,7 +15,7 @@ public class SslAuthenticationConsumer {
 
     public static void main(String[] args) {
         Properties properties = new Properties();
-        properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9093");
+        properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "brubeck:9093");
         properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         properties.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
@@ -26,11 +26,11 @@ public class SslAuthenticationConsumer {
 
         properties.put("security.protocol", "SSL");
         properties.put("ssl.truststore.location", "/home/ssl/kafka.client.truststore.jks");
-        properties.put("ssl.truststore.password", "weakpass");
+        properties.put("ssl.truststore.password", "senhainsegura");
 
         properties.put("ssl.keystore.location", "/home/ssl/kafka.client.keystore.jks");
-        properties.put("ssl.keystore.password", "weakpass");
-        properties.put("ssl.key.password", "weakpass");
+        properties.put("ssl.keystore.password", "senhainsegura");
+        properties.put("ssl.key.password", "senhainsegura");
 
         final String topic = "teste";
 

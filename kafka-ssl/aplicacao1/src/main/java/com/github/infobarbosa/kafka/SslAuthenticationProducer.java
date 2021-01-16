@@ -12,7 +12,7 @@ public class SslAuthenticationProducer {
 
     public static void main(String[] args) {
         Properties properties = new Properties();
-        properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9093");
+        properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "brubeck:9093");
         properties.put(ProducerConfig.ACKS_CONFIG, "all");
         properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
@@ -22,11 +22,11 @@ public class SslAuthenticationProducer {
 
         properties.put("security.protocol", "SSL");
         properties.put("ssl.truststore.location", "/home/ssl/kafka.client.truststore.jks");
-        properties.put("ssl.truststore.password", "weakpass");
+        properties.put("ssl.truststore.password", "senhainsegura");
 
         properties.put("ssl.keystore.location", "/home/ssl/kafka.client.keystore.jks");
-        properties.put("ssl.keystore.password", "weakpass");
-        properties.put("ssl.key.password", "weakpass");
+        properties.put("ssl.keystore.password", "senhainsegura");
+        properties.put("ssl.key.password", "senhainsegura");
 
         KafkaProducer<String, String> producer = new KafkaProducer<String, String>(properties);
         final String topic = "teste";
