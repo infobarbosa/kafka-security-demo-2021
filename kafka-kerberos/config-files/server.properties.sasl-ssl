@@ -5,12 +5,11 @@ advertised.listeners=PLAINTEXT://brubeck:9092,SSL://brubeck:9093,SASL_SSL://brub
 
 sasl.enabled.mechanisms=GSSAPI
 sasl.kerberos.service.name=kafka
-ssl.client.auth=required
 
-ssl.keystore.location=/home/ssl/kafka.server.keystore.jks
+ssl.keystore.location=/tmp/ssl/kafka.server.keystore.jks
 ssl.keystore.password=senhainsegura
 ssl.key.password=senhainsegura
-ssl.truststore.location=/home/ssl/kafka.server.truststore.jks
+ssl.truststore.location=/tmp/ssl/kafka.server.truststore.jks
 ssl.truststore.password=senhainsegura
 
 num.network.threads=3

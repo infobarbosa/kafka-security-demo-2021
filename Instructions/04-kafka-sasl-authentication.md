@@ -27,9 +27,7 @@ sudo apt purge -y krb5-kdc krb5-admin-server krb5-config krb5-locales krb5-user
 
 #### kadm5.acl
 ```
-sudo -i
-cd /etc/krb5kdc
-vi kadm5.acl
+sudo vi /etc/krb5kdc/kadm5.acl
 ```
 Substituir pelo conteúdo a seguir:
 ```
@@ -58,8 +56,8 @@ kdb5_util destroy
 
 ```
 sudo -i
-kadmin.local -q "add_principal -randkey producer@KAFKA.INFOBARBOSA"
-kadmin.local -q "add_principal -randkey consumer@KAFKA.INFOBARBOSA"
+kadmin.local -q "add_principal -randkey producer123@KAFKA.INFOBARBOSA"
+kadmin.local -q "add_principal -randkey consumer123@KAFKA.INFOBARBOSA"
 kadmin.local -q "add_principal -randkey admin@KAFKA.INFOBARBOSA"
 
 kadmin.local -q "add_principal -randkey kafka/brubeck.localdomain@KAFKA.INFOBARBOSA"
@@ -117,7 +115,6 @@ Agora inclua os parâmetros abaixo (sugiro que seja após `advertised.listeners`
 ```
 sasl.enabled.mechanisms=GSSAPI
 sasl.kerberos.service.name=kafka
-ssl.client.auth=required
 ```
 
 `GSSAPI` indica o uso de Kerberos como mecanismo habilitado de autenticação.
@@ -135,7 +132,7 @@ KafkaServer {
     useKeyTab=true
     storeKey=true
     keyTab="/tmp/keytabs/kafka.service.keytab"
-    principal="kafka/brubeck@KAFKA.INFOBARBOSA";
+    principal="kafka/brubeck.localdomain@KAFKA.INFOBARBOSA";
 };
 ```
 
@@ -143,6 +140,7 @@ KafkaServer {
 Para reiniciar o Kafka agora vamos incluir via variável de ambiente `KAFKA_OPTS` o arquivo `kafka_server_jaas.conf` que criamos há pouco: 
 ```
 export KAFKA_OPTS="-Djava.security.auth.login.config=/opt/kafka/config/kafka_server_jaas.conf"
+kafka-server-stop.sh
 kafka-server-start.sh /opt/kafka/config/server.properties.sasl-ssl
 ```
 
