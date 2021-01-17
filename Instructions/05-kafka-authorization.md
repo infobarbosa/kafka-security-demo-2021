@@ -17,28 +17,25 @@ Vá tomar um café. Leva pelo menos uns 15 minutos para todas as instâncias do 
 O ideal é fazer um teste antes para se ter uma ideia de antes/depois.</br>
 Entre na instância _kafka-client_ e faça o seguinte:
 ```
-vagrant ssh kafka-client
+cd kafka-authorized/producer-authorized
 
-cd aplicacao1
-
-java -cp target/aplicacao1-1.0-SNAPSHOT-jar-with-dependencies.jar com.github.infobarbosa.kafka.SaslAuthenticationProducer
+java -cp target/producer-authorized.jar
 CTRL+C
 
-cd ../aplicacao2
+cd kafka-authorized/consumer-authorized
 
-java -cp target/aplicacao2-1.0-SNAPSHOT-jar-with-dependencies.jar com.github.infobarbosa.kafka.SaslAuthenticationConsumer
+java -cp target/consumer-authorized.jar
 CTRL+C
 ```
 Se estiver tudo certo então você tem um ambiente operante, ou seja, consegue produzir e consumir mensagens sem erros.</br>
 Você também pode deixar as aplicações clientes em execução durante o teste. Isso é bacana pra ter a percepção do que ocorre com a aplicação antes, durante e após a conclusão do processo.
 
 ## Configuração dos brokers
+>> Para fins didáticos vou utilizar um segundo arquivo `server.properties.authorized`
 
-Em cada instância de broker, edite o arquivo _server.properties_:
+Em cada instância de broker, edite o arquivo `server.properties`:
 
 ```
-vagrant ssh kafka1
-
 vi /etc/kafka/server.properties
 ```
 
@@ -50,7 +47,7 @@ allow.everyone.if.no.acl.found=false
 ```
 
 ### Etapa 3 - Reiniciando o Kafka
-Para reiniciar o Kafka agora vamos incluir via variável de ambiente `KAFKA_OPTS` o arquivo `kafka_server_jaas.conf` que criamos há pouco: 
+Para reiniciar o Kafka agora vamos incluir via variável de ambiente `KAFKA_OPTS` o arquivo `kafka_server_jaas.conf` que criamos durante o laboratório de *Autenticação*: 
 ```
 export KAFKA_OPTS="-Djava.security.auth.login.config=/opt/kafka/config/kafka_server_jaas.conf"
 kafka-server-stop.sh
@@ -62,15 +59,15 @@ kafka-server-start.sh -daemon /opt/kafka/config/server.properties.authorized
 
 ## Autorização de Leitura
 
-Permissões de acesso devem ser feitas através do utilitário _kafka-acls_ que vem junto com a sua instalação de Kafka.</br>
+Permissões de acesso devem ser feitas através do utilitário `kafka-acls.sh` que vem junto com a sua instalação de Kafka.</br>
 > **Atenção!**</br>
-> Caso o comando _kafka-acls_ não seja reconhecido então você pode tentar executar acrescentando o path completo. Por exemplo: $KAFKA_HOME/bin/kafka-acls.sh
+> Caso o comando `kafka-acls.sh` não seja reconhecido então você pode tentar executar acrescentando o path completo. Por exemplo: `$KAFKA_HOME/bin/kafka-acls.sh`
 
-O comando abaixo concede a permissão de leitura no tópico **teste** para os usuarios _aplicacao1_ e _aplicacao2_:
+O comando abaixo concede a permissão de leitura no tópico **teste** para os usuarios `producer123` e `consumer123`:
 
 ```
 kafka-acls.sh \
-  --authorizer-properties zookeeper.connect=brubeck:2181/kafka --add \
+  --authorizer-properties zookeeper.connect=brubeck:2181 --add \
   --allow-principal User:producer123 \
   --allow-principal User:consumer123 \
   --operation Read \
@@ -79,7 +76,7 @@ kafka-acls.sh \
 ```
 
 ## Autorização de Escrita
-O comando abaixo concede a permissão de escrita no tópico **teste** para o usuario _aplicacao1_ :
+O comando abaixo concede a permissão de escrita no tópico **teste** para o usuário `producer123` :
 
 ```
 kafka-acls.sh \
@@ -91,17 +88,18 @@ kafka-acls.sh \
 
 ## Listagem das permissões correntes
 ```
-kafka-acls \
-  --authorizer-properties zookeeper.connect=zookeeper1.infobarbosa.github.com:2181/kafka \
+kafka-acls.sh \
+  --authorizer-properties zookeeper.connect=brubeck:2181 \
   --list \
   --topic teste
 ```
 
 ## Remoção de permissões
 ```
-kafka-acls \
-  --authorizer-properties zookeeper.connect=zookeeper1.infobarbosa.github.com:2181/kafka --remove \
-  --allow-principal User:aplicacao2 \
+kafka-acls.sh \
+  --authorizer-properties zookeeper.connect=brubeck:2181 --remove \
+  --allow-principal User:producer123 \
+  --allow-principal User:consumer123 \
   --operation Read \
   --topic teste
 ```
