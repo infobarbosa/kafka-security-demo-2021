@@ -28,6 +28,7 @@ ls -latrh
 Vamos checar o conteúdo da keystore
 ```
 keytool -list -v -keystore /tmp/ssl/kafka.server.keystore.jks -storepass senhainsegura
+keytool -list -rfc -keystore /tmp/ssl/kafka.server.keystore.jks -storepass senhainsegura
 ```
 
 ### Certification request
@@ -61,6 +62,7 @@ keytool -printcert -v -file /tmp/ssl/kafka-cert-signed
 Antes de seguir, talvez você queira checar a keystore pra ter a visão do antes e depois:
 ```
 keytool -list -v -keystore /tmp/ssl/kafka.server.keystore.jks -storepass senhainsegura
+keytool -list -rfc -keystore /tmp/ssl/kafka.server.keystore.jks -storepass senhainsegura
 ```
 Hora de executar as devidas importações.
 
@@ -75,6 +77,7 @@ keytool -keystore /tmp/ssl/kafka.server.keystore.jks -import -file /tmp/ssl/kafk
 Checando se deu certo:
 ```
 keytool -list -v -keystore /tmp/ssl/kafka.server.keystore.jks -storepass senhainsegura
+keytool -list -rfc -keystore /tmp/ssl/kafka.server.keystore.jks -storepass senhainsegura
 ```
 Se estamos no caminho certo, o output será algo como:
 ```
@@ -98,13 +101,14 @@ Issuer: CN=Kafka-Security-CA
 
 ***Trustore***
 
-Cria a truststore e importa o certificado publico da CA (`ca-cert`) para ela:
+Cria a truststore e importa o certificado público da CA (`ca-cert`) para ela:
 ```
 keytool -keystore /tmp/ssl/kafka.server.truststore.jks -alias CARoot -import -file /tmp/ssl/ca-cert -storepass senhainsegura -keypass senhainsegura -noprompt
 ```
 Checando se deu certo:
 ```
 keytool -list -v -keystore /tmp/ssl/kafka.server.truststore.jks -storepass senhainsegura
+keytool -list -rfc -keystore /tmp/ssl/kafka.server.truststore.jks -storepass senhainsegura
 
 ```
 
