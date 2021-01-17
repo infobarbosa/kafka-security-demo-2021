@@ -33,7 +33,7 @@ public class SaslAuthenticationProducer {
 
         for(int i=0; i < 100000; i++){
             String key = "key " + i;
-            String value = "SASL authentication value " + i + " at ts " + System.currentTimeMillis();
+            String value = "[AUTHZ Lab] value " + i + " at ts " + System.currentTimeMillis();
 
             record = new ProducerRecord<>(topic, key, value);
             producer.send(record, new Callback() {
