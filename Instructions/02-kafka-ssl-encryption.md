@@ -193,9 +193,9 @@ A título de curiosidade, abra as classes `SslProducer.java` e `SslConsumer.java
 BOOTSTRAP_SERVERS_CONFIG=brubeck:9093
 security.protocol=SSL
 ssl.truststore.location=/tmp/ssl/kafka.client.truststore.jks
-ssl.truststore.password=weakpass
+ssl.truststore.password=senhainsegura
 ```
-Obviamente essas e outras propriedades não devem ser hard coded. Como boa prática devem ser injetadas via arquivo de configuração ou variáveis de ambiente.
+Obviamente essas e outras propriedades não devem ser hard coded. Como boa prática devem ser injetadas via automação de deployment.
 
 ## Segundo teste (SSL)
 
@@ -224,7 +224,9 @@ sudo tcpdump -v -XX  -i lo 'port 9093'
 ```
 Caso queira enviar o log para um arquivo para analisar melhor:
 ```
-sudo tcpdump -v -XX  -i lo 'port 9093' -w dump-ssl.txt -c 1000
+sudo tcpdump -v -XX  -i lo 'port 9093' -c 1000 -w dump-ssl.txt
+sudo tcpdump -v -XX  -i lo 'port 9093' -c 1000 -x > dump-ssl.txt
+
 sudo tcpdump -v -XX  -i lo 'port 9092' -w dump-plaintext.txt -c 1000
 
 ```
@@ -244,17 +246,16 @@ O setup que fizemos ate aqui garante apenas a encripcao de dados entre a aplicac
 
 Se voce fizer um `tcpdump` em um broker qualquer vai perceber que a porta 9092 ainda esta em uso. Basicamente eh por essa porta que as particoes _followers_ fazem fetch pra se manterem sincronizadas com as particoes _leaders_.
 ```
-vagrant ssh kafka1
 sudo -i
 tcpdump -v -XX  -i lo 'port 9092' -w dump9092.txt -c 1000
 tcpdump -v -XX  -i lo 'port 9093' -w dump9093.txt -c 1000
 ```
 
-Para habilitar a encriptacao inclusive entre os brokers, abra o arquivo `server.properties` e acrescente a seguinte linha.
+Para habilitar a encriptação inclusive entre os brokers, abra o arquivo `server.properties` e acrescente a seguinte linha.
 ```
 security.inter.broker.protocol=SSL
 ```
-Done! A partir de agora voce tem uma comunicacao totalmente encriptada entre todos os componentes da solucao.
+Done! A partir de agora voce tem uma comunicacao totalmente encriptada entre todos os componentes da solução.
 
 Se tiver dúvidas, me envie! Tentarei ajudar como puder.<br/>
 Até o próximo artigo!
