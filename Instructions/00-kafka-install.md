@@ -33,6 +33,7 @@ No diretório `kafka-security-demo-2021` execute:
 cp kafka-inseguro/config-files/server.properties.inseguro $KAFKA_HOME/config/
 cp kafka-ssl/config-files/server.properties.ssl $KAFKA_HOME/config/
 cp kafka-kerberos/config-files/server.properties.sasl-ssl $KAFKA_HOME/config/
+cp kafka-authorization/config-files/server.properties.authorized $KAFKA_HOME/config/
 ls -altr /etc/kafka/server.properties*
 ```
 

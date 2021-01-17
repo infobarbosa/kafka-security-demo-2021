@@ -49,11 +49,16 @@ super.users=User:admin;User:kafka
 allow.everyone.if.no.acl.found=false
 ```
 
-Salve o arquivo, saia e reinicie o kafka:
+### Etapa 3 - Reiniciando o Kafka
+Para reiniciar o Kafka agora vamos incluir via variável de ambiente `KAFKA_OPTS` o arquivo `kafka_server_jaas.conf` que criamos há pouco: 
 ```
-sudo systemctl restart kafka
-sudo systemctl status kafka
+export KAFKA_OPTS="-Djava.security.auth.login.config=/opt/kafka/config/kafka_server_jaas.conf"
+kafka-server-stop.sh
+kafka-server-start.sh /opt/kafka/config/server.properties.authorized
+# ou
+kafka-server-start.sh -daemon /opt/kafka/config/server.properties.authorized
 ```
+
 
 ## Autorização de Leitura
 
@@ -64,10 +69,10 @@ Permissões de acesso devem ser feitas através do utilitário _kafka-acls_ que 
 O comando abaixo concede a permissão de leitura no tópico **teste** para os usuarios _aplicacao1_ e _aplicacao2_:
 
 ```
-kafka-acls \
-  --authorizer-properties zookeeper.connect=zookeeper1.infobarbosa.github.com:2181/kafka --add \
-  --allow-principal User:aplicacao1 \
-  --allow-principal User:aplicacao2 \
+kafka-acls.sh \
+  --authorizer-properties zookeeper.connect=brubeck:2181/kafka --add \
+  --allow-principal User:producer123 \
+  --allow-principal User:consumer123 \
   --operation Read \
   --group=* \
   --topic teste
@@ -77,9 +82,9 @@ kafka-acls \
 O comando abaixo concede a permissão de escrita no tópico **teste** para o usuario _aplicacao1_ :
 
 ```
-kafka-acls \
-  --authorizer-properties zookeeper.connect=zookeeper1.infobarbosa.github.com:2181/kafka --add \
-  --allow-principal User:aplicacao1 \
+kafka-acls.sh \
+  --authorizer-properties zookeeper.connect=brubeck:2181 --add \
+  --allow-principal User:producer123 \
   --operation Write \
   --topic teste
 ```
