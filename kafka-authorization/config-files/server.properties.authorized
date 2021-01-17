@@ -12,6 +12,10 @@ ssl.key.password=senhainsegura
 ssl.truststore.location=/tmp/ssl/kafka.server.truststore.jks
 ssl.truststore.password=senhainsegura
 
+authorizer.class.name=kafka.security.auth.SimpleAclAuthorizer
+super.users=User:admin;User:kafka
+allow.everyone.if.no.acl.found=false
+
 num.network.threads=3
 num.io.threads=8
 socket.send.buffer.bytes=102400
