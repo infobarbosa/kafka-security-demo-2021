@@ -142,6 +142,8 @@ Para reiniciar o Kafka agora vamos incluir via variável de ambiente `KAFKA_OPTS
 export KAFKA_OPTS="-Djava.security.auth.login.config=/opt/kafka/config/kafka_server_jaas.conf"
 kafka-server-stop.sh
 kafka-server-start.sh /opt/kafka/config/server.properties.sasl-ssl
+# ou
+kafka-server-start.sh -daemon /opt/kafka/config/server.properties.sasl-ssl
 ```
 
 #### kafka.service (OPCIONAL! Apenas se você configurou o kafka como serviço)
