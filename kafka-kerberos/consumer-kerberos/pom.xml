@@ -6,7 +6,7 @@
 
     <groupId>com.github.infobarbosa</groupId>
     <artifactId>consumer-kerberos</artifactId>
-    <version>1.0</version>
+    <version>1.0</version> 
     <url>http://maven.apache.org</url>
 
     <properties>
