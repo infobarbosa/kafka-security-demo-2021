@@ -5,12 +5,7 @@ No outro extremo, se você habilitar este recurso mas não der as devidas permis
 
 > É sempre bom lembrar que a [documentação](https://kafka.apache.org/documentation/#security_authz) oficial é sempre a melhor referência.
 
-Vamos começar com o setup do cluster. Se você finalizou o laboratório _kafka-kerberos_ então pode tomá-lo como ponto de partida.</br>
-Caso contrário, há um script _Vagrantfile_ pronto pra você subir um ambiente com as configurações de encriptação e autenticação kerberos prontas.
-```
-vagrant up
-```
-Vá tomar um café. Leva pelo menos uns 15 minutos para todas as instâncias do lab estarem prontas para uso.
+Vamos começar com o setup do kafka server.
 
 ## Teste preliminar
 
@@ -41,9 +36,14 @@ vi /etc/kafka/server.properties
 
 Acrescente as seguintes linhas:
 ```
-authorizer.class.name=kafka.security.auth.SimpleAclAuthorizer
-super.users=User:admin;User:kafka
+authorizer.class.name=kafka.security.authorizer.AclAuthorizer
 allow.everyone.if.no.acl.found=false
+security.inter.broker.protocol=SASL_SSL
+super.users=User:admin;User:kafka
+```
+Ou
+```
+super.users=User:admin;User:kafka;User:ANONYMOUS
 ```
 
 ### Etapa 3 - Reiniciando o Kafka
@@ -70,9 +70,16 @@ kafka-acls.sh \
   --authorizer-properties zookeeper.connect=brubeck:2181 --add \
   --allow-principal User:producer123 \
   --allow-principal User:consumer123 \
-  --operation Read \
+  --operation All \
   --group=* \
   --topic teste
+
+kafka-acls.sh \
+  --authorizer-properties zookeeper.connect=brubeck:2181 --add \
+  --allow-principal User:consumer123 \
+  --operation Read \
+  --group=* \
+  --topic teste 
 ```
 
 ## Autorização de Escrita
