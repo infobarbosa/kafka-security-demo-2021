@@ -1,7 +1,7 @@
 broker.id=0
 
 listeners=PLAINTEXT://0.0.0.0:9092,SSL://0.0.0.0:9093,SASL_SSL://0.0.0.0:9094
-advertised.listeners=PLAINTEXT://brubeck:9092,SSL://brubeck:9093,SASL_SSL://brubeck:9094
+advertised.listeners=PLAINTEXT://brubeck.localdomain:9092,SSL://brubeck.localdomain:9093,SASL_SSL://brubeck.localdomain:9094
 
 sasl.enabled.mechanisms=GSSAPI
 sasl.kerberos.service.name=kafka
