@@ -14,7 +14,7 @@ Eh uma sessão bem trabalhosa e, na minha opinião, nao é onde devemos gastar m
 
 ### Criando um certificado para a aplicação cliente:
 ```
-keytool -genkey -keystore /tmp/ssl/kafka.client.keystore.jks -validity 365 -storepass senhainsegura -keypass senhainsegura  -dname "CN=brubeck" -alias kafka-client -storetype pkcs12
+keytool -genkey -keystore /tmp/ssl/kafka.client.keystore.jks -validity 365 -storepass senhainsegura -keypass senhainsegura  -dname "CN=brubeck.localdomain" -alias kafka-client -storetype pkcs12
 
 keytool -list -v -keystore /tmp/ssl/kafka.client.keystore.jks -storepass senhainsegura
 ```
@@ -55,7 +55,7 @@ keytool -printcert -v -file /tmp/ssl/client-cert-signed
 ```
 Se o output tiver algo como...
 ```
-Owner: CN=brubeck
+Owner: CN=brubeck.localdomain
 Issuer: CN=Kafka-Security-CA
 ```
 ...então estamos no caminho certo.
@@ -88,7 +88,7 @@ O output será algo assim:
 Your keystore contains 2 entries
 ...
 Certificate[1]:
-Owner: CN=brubeck
+Owner: CN=brubeck.localdomain
 Issuer: CN=Kafka-Security-CA
 ...
 Certificate[2]:
