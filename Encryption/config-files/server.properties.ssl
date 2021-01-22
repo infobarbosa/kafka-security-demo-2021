@@ -1,7 +1,7 @@
 broker.id=0
 
 listeners=PLAINTEXT://0.0.0.0:9092,SSL://0.0.0.0:9093
-advertised.listeners=PLAINTEXT://brubeck:9092,SSL://brubeck:9093
+advertised.listeners=PLAINTEXT://brubeck.localdomain:9092,SSL://brubeck.localdomain:9093
 
 ssl.keystore.location=/tmp/ssl/kafka.server.keystore.jks
 ssl.keystore.password=senhainsegura
