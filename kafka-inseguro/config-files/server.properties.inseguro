@@ -1,7 +1,7 @@
 broker.id=0
 
 listeners=PLAINTEXT://0.0.0.0:9092
-advertised.listeners=PLAINTEXT://brubeck:9092
+advertised.listeners=PLAINTEXT://brubeck.localdomain:9092
 
 num.network.threads=3
 num.io.threads=8
