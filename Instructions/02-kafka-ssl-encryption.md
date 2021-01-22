@@ -21,7 +21,7 @@ openssl req -new -newkey rsa:4096 -days 365 -x509 -subj "/CN=Kafka-Security-CA" 
 Atente-se aos nomes dos hosts (FQDN).
 
 ```
-keytool -genkey -keystore /tmp/ssl/kafka.server.keystore.jks -validity 365 -storepass senhainsegura -keypass senhainsegura  -dname "CN=brubeck" -storetype pkcs12
+keytool -genkey -keystore /tmp/ssl/kafka.server.keystore.jks -validity 365 -storepass senhainsegura -keypass senhainsegura  -dname "CN=brubeck.localdomain" -storetype pkcs12
 
 ls -latrh
 ```
@@ -127,12 +127,12 @@ vi /etc/kafka/server.properties
 Substitua as linhas...
 ```
 listeners=PLAINTEXT://0.0.0.0:9092
-advertised.listeners=PLAINTEXT://localhost:9092
+advertised.listeners=PLAINTEXT://brubeck.localdomain:9092
 ```
 ...por:
 ```
 listeners=PLAINTEXT://0.0.0.0:9092,SSL://0.0.0.0:9093
-advertised.listeners=PLAINTEXT://brubeck:9092,SSL://brubeck:9093
+advertised.listeners=PLAINTEXT://brubeck.localdomain:9092,SSL://brubeck.localdomain:9093
 ```
 
 Acrescente também as linhas abaixo:
@@ -164,7 +164,7 @@ grep "9093" /opt/kafka/logs/server.log
 
 Uma outra verificação legal é testar o SSL de uma outra máquina:
 ```
-openssl s_client -connect brubeck:9093
+openssl s_client -connect brubeck.localdomain:9093
 ```
 Se aparecer CONNECTED, parabéns! </br>
 
@@ -190,7 +190,7 @@ keytool -list -v -keystore /tmp/ssl/kafka.client.truststore.jks -storepass senha
 
 A título de curiosidade, abra as classes `SslProducer.java` e `SslConsumer.java`, ambas debaixo de src/main/java/com/github/infobarbosa/kafka, e observe o uso das propriedades abaixo:
 ```
-BOOTSTRAP_SERVERS_CONFIG=brubeck:9093
+BOOTSTRAP_SERVERS_CONFIG=brubeck.localdomain:9093
 security.protocol=SSL
 ssl.truststore.location=/tmp/ssl/kafka.client.truststore.jks
 ssl.truststore.password=senhainsegura
@@ -238,7 +238,7 @@ O importante é remover o porta 9092 do listener o mais cedo possível.
 Quando tiver finalizado sua configuração de listener no broker será parecida com isso:
 ```
 listeners=PLAINTEXT://0.0.0.0:9093
-advertised.listeners=PLAINTEXT://brubeck:9093
+advertised.listeners=PLAINTEXT://brubeck.localdomain:9093
 ```
 ## Encriptacao Intebroker
 
