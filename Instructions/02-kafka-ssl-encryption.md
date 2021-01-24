@@ -148,7 +148,7 @@ ssl.truststore.password=senhainsegura
 Agora reinicie o Kafka.
 ```
 kafka-server-stop.sh
-kafka-server-start.sh -daemon /opt/kafka/config/server.properties.ssl
+kafka-server-start.sh /opt/kafka/config/server.properties.ssl
 ```
 
 Um disclaimer sobre a truststore. Ela serve para (óbvio!) assinalar quais hosts ou endpoints sao confiaveis. </br>
@@ -202,16 +202,19 @@ Obviamente essas e outras propriedades não devem ser hard coded. Como boa prát
 Vamos refazer o teste. Desta vez, utilizando as classes produtora e consumidora que já apontam para o kafka1 na porta 9093
 #### Janela 1
 ```
-cd aplicacao1
+cd [root path do projeto]
+cd Encryption/producer-ssl/
+mvn clean package
 
-java -jar target/aplicacao1-1.0-SNAPSHOT-jar-with-dependencies.jar
+java -jar target/producer-ssl.jar
 ```
 
 #### Janela 2
 ```
-cd aplicacao2
-
-java -jar target/aplicacao2-1.0-SNAPSHOT-jar-with-dependencies.jar 
+cd [root path do projeto]
+cd Encryption/consumer-ssl/
+mvn clean package
+java -jar target/consumer-ssl.jar
 ```
 
 #### Janela 3. Opcional. tcpdump na porta do servico para "escutar" o conteudo trafegado.
