@@ -15,7 +15,7 @@ public class SslConsumer {
 
     public static void main(String[] args) {
         Properties properties = new Properties();
-        properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "brubeck:9093");
+        properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "brubeck.localdomain:9093");
         properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         properties.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
