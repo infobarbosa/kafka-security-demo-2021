@@ -15,7 +15,7 @@ public class SaslAuthenticationConsumer {
 
     public static void main(String[] args) {
         Properties properties = new Properties();
-        properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "brubeck:9094");
+        properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "brubeck.localdomain:9094");
         properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         properties.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         properties.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
@@ -26,7 +26,10 @@ public class SaslAuthenticationConsumer {
 
         properties.put("security.protocol", "SASL_SSL");
         properties.put("sasl.kerberos.service.name", "kafka");
-        properties.put("sasl.jaas.config", "com.sun.security.auth.module.Krb5LoginModule required useKeyTab=true storeKey=true keyTab=\"/tmp/keytabs/consumer123.user.keytab\" principal=\"consumer123@KAFKA.INFOBARBOSA\";");
+        properties.put("sasl.jaas.config", "com.sun.security.auth.module.Krb5LoginModule required " +
+                                            "useKeyTab=true storeKey=true " + 
+                                            "keyTab=\"/tmp/keytabs/consumer123.user.keytab\" " +
+                                            "principal=\"consumer123@KAFKA.INFOBARBOSA\";");
         properties.put("ssl.truststore.location", "/tmp/ssl/kafka.client.truststore.jks");
         properties.put("ssl.truststore.password", "senhainsegura");
 
