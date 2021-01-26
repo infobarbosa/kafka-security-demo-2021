@@ -14,7 +14,7 @@ ssl.truststore.password=senhainsegura
 
 authorizer.class.name=kafka.security.authorizer.AclAuthorizer
 super.users=User:admin;User:kafka
-allow.everyone.if.no.acl.found=false
+allow.everyone.if.no.acl.found=true
 
 num.network.threads=3
 num.io.threads=8
