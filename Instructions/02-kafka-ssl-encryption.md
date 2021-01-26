@@ -14,7 +14,7 @@ Eh uma sessao bem trabalhosa e, na minha opiniao, nao eh onde devemos gastar mui
 
 ### Gerando uma autoridade certificadora (CA)
 mkdir -p /tmp/ssl
-openssl req -new -newkey rsa:4096 -days 365 -x509 -subj "/CN=Kafka-Security-CA" -keyout /tmp/ssl/ca-key -out /tmp/ssl/ca-cert -nodes
+openssl req -new -newkey rsa:2048 -days 365 -x509 -subj "/CN=Kafka-Security-CA" -keyout /tmp/ssl/ca-key -out /tmp/ssl/ca-cert -nodes
 
 ### Gerando o certificado e a keystore
 
@@ -23,7 +23,7 @@ Atente-se aos nomes dos hosts (FQDN).
 ```
 keytool -genkey -keystore /tmp/ssl/kafka.server.keystore.jks -validity 365 -storepass senhainsegura -keypass senhainsegura  -dname "CN=brubeck.localdomain" -storetype pkcs12
 
-ls -latrh
+ls -latrh /tmp/ssl
 ```
 Vamos checar o conteúdo da keystore
 ```
