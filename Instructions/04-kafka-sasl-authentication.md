@@ -42,6 +42,7 @@ kadmin.local -q "add_principal -pw senhainsegura admin/admin"
 
 service krb5-kdc restart
 service krb5-admin-server restart
+
 ```
 
 Caso algo de errado e você queira reiniciar o kerberos database:<br>
@@ -57,10 +58,14 @@ kdb5_util destroy
 ```
 sudo -i
 kadmin.local -q "add_principal -randkey producer123@KAFKA.INFOBARBOSA"
+
 kadmin.local -q "add_principal -randkey consumer123@KAFKA.INFOBARBOSA"
+
 kadmin.local -q "add_principal -randkey admin@KAFKA.INFOBARBOSA"
 
 kadmin.local -q "add_principal -randkey kafka/brubeck.localdomain@KAFKA.INFOBARBOSA"
+
+sudo kadmin.local -q "list_principals"
 ```
 
 Caso algo dê errado e você queira eliminar uma principal:
@@ -70,13 +75,17 @@ kadmin.local -q "delete_principal [INFORME AQUI A PRINCIPAL]"
 
 ## Criando as keytabs
 ```
-sudo -i
 mkdir -p /tmp/keytabs
-kadmin.local -q "xst -kt /tmp/keytabs/producer123.user.keytab producer123@KAFKA.INFOBARBOSA"
-kadmin.local -q "xst -kt /tmp/keytabs/consumer123.user.keytab consumer123@KAFKA.INFOBARBOSA"
-kadmin.local -q "xst -kt /tmp/keytabs/admin.user.keytab admin@KAFKA.INFOBARBOSA"
-kadmin.local -q "xst -kt /tmp/keytabs/kafka.service.keytab kafka/brubeck.localdomain@KAFKA.INFOBARBOSA"
-chown -R barbosa:barbosa /tmp/keytabs
+
+sudo kadmin.local -q "xst -kt /tmp/keytabs/producer123.user.keytab producer123@KAFKA.INFOBARBOSA"
+
+sudo kadmin.local -q "xst -kt /tmp/keytabs/consumer123.user.keytab consumer123@KAFKA.INFOBARBOSA"
+
+sudo kadmin.local -q "xst -kt /tmp/keytabs/admin.user.keytab admin@KAFKA.INFOBARBOSA"
+
+sudo kadmin.local -q "xst -kt /tmp/keytabs/kafka.service.keytab kafka/brubeck.localdomain@KAFKA.INFOBARBOSA"
+
+sudo chown -R barbosa:barbosa /tmp/keytabs
 ``` 
 
 ## Configuração do Kafka
