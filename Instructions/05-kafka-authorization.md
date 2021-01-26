@@ -37,9 +37,9 @@ vi /etc/kafka/server.properties
 Acrescente as seguintes linhas:
 ```
 authorizer.class.name=kafka.security.authorizer.AclAuthorizer
-allow.everyone.if.no.acl.found=false
-security.inter.broker.protocol=SASL_SSL
+allow.everyone.if.no.acl.found=true
 super.users=User:admin;User:kafka
+security.inter.broker.protocol=SASL_SSL
 ```
 Ou
 ```
@@ -70,7 +70,7 @@ kafka-acls.sh \
   --authorizer-properties zookeeper.connect=brubeck:2181 --add \
   --allow-principal User:producer123 \
   --allow-principal User:consumer123 \
-  --operation All \
+  --operation Read \
   --group=* \
   --topic teste
 
@@ -110,6 +110,12 @@ kafka-acls.sh \
   --operation Read \
   --topic teste
 ```
+
+## Quotas
+kafka-configs.sh  --zookeeper brubeck:2181 \
+      --alter --add-config 'producer_byte_rate=10485760,consumer_byte_rate=20971520' \
+      --entity-name producer123 \
+      --entity-type clients
 
 É isso! Espero que você tenha gostado. </br>
 Fique à vontade para me mandar suas críticas e sugestões. 
