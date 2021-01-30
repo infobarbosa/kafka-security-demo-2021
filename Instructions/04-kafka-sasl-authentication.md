@@ -2,6 +2,16 @@
 > Atenção! Esse lab considera minha máquina cujo hostname é `brubeck` e a interface de rede `lo`.
 > Caso queira reproduzir, será necessário fazer as devidas adaptações para o seu hostname. ;)
 
+## Iniciando o Kerberos
+Caso você já tenha um kerberos instalado, garanta que esteja ativo:
+```
+sudo service krb5-kdc status
+sudo service krb5-kdc start
+
+sudo service krb5-admin-server status
+sudo service krb5-admin-server start
+```
+
 ## Instalando o Kerberos
 > **Atenção! Risco de perda de dados e contas! Execute por sua conta e risco.**
 
@@ -51,7 +61,12 @@ Caso algo de errado e você queira reiniciar o kerberos database:<br>
 kdb5_util destroy
 ```
 
-## Criando as principals
+## Criando as principals (credenciais)
+Primeiro verifique quais credenciais você têm disponível:
+```
+sudo kadmin.local -q "list_principals"
+```
+
 > O trecho abaixo não faz parte do setup do Kerberos.<br>
 > Trata-se da criação das principals/credenciais para o laboratório
 
@@ -65,7 +80,6 @@ kadmin.local -q "add_principal -randkey admin@KAFKA.INFOBARBOSA"
 
 kadmin.local -q "add_principal -randkey kafka/brubeck.localdomain@KAFKA.INFOBARBOSA"
 
-sudo kadmin.local -q "list_principals"
 ```
 
 Caso algo dê errado e você queira eliminar uma principal:
