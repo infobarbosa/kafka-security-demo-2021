@@ -1,6 +1,6 @@
 # Kafka SSL Encryption Lab
 
-Esse laboratório tem por objetivo exercitar a feature de encriptação do Kafka. O conteúdo completo pode ser encontrado [aqui](https://github.com/infobarbosa/kafka-security).<br/>
+Esse laboratório tem por objetivo exercitar a feature de encriptação do Kafka. O conteúdo completo pode ser encontrado [aqui](https://github.com/infobarbosa/kafka-security-demo-2021).<br/>
 
 ## Let's go!
 
