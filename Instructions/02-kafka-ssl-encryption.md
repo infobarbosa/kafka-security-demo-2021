@@ -2,11 +2,6 @@
 
 Esse laboratório tem por objetivo exercitar a feature de encriptação do Kafka. O conteúdo completo pode ser encontrado [aqui](https://github.com/infobarbosa/kafka-security-demo-2021).<br/>
 
-## Let's go!
-
-Vamos primeiramente testar as nossas aplicações clientes e constatar o quanto inseguro pode ser tráfego de dados quando o Kafka não habilita encriptação.<br/>
-
-
 ## Certificados
 
 Atenção! Esta sessao trata da geracao, assinatura e instalacao dos certificados em keystores e truststores.</br>
@@ -16,7 +11,7 @@ Eh uma sessao bem trabalhosa e, na minha opiniao, nao eh onde devemos gastar mui
 #### Gerando uma autoridade certificadora (CA)
 ```
 mkdir -p /tmp/ssl
-openssl req -new -newkey rsa:2048 -days 365 -x509 -subj "/CN=Kafka-Security-CA" -keyout /tmp/ssl/ca-key -out /tmp/ssl/ca-cert -nodes
+openssl req -new -newkey rsa:4096 -days 365 -x509 -subj "/CN=Kafka-Security-CA" -keyout /tmp/ssl/ca-key -out /tmp/ssl/ca-cert -nodes
 ```
 
 #### Gerando o certificado e a keystore
