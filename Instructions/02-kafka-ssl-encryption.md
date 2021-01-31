@@ -12,11 +12,14 @@ Vamos primeiramente testar as nossas aplicações clientes e constatar o quanto 
 Atenção! Esta sessao trata da geracao, assinatura e instalacao dos certificados em keystores e truststores.</br>
 Eh uma sessao bem trabalhosa e, na minha opiniao, nao eh onde devemos gastar muita energia pois nao tem a ver com o setup Kafka em si. </br>
 
-### Gerando uma autoridade certificadora (CA)
+### Server (Broker)
+#### Gerando uma autoridade certificadora (CA)
+```
 mkdir -p /tmp/ssl
 openssl req -new -newkey rsa:2048 -days 365 -x509 -subj "/CN=Kafka-Security-CA" -keyout /tmp/ssl/ca-key -out /tmp/ssl/ca-cert -nodes
+```
 
-### Gerando o certificado e a keystore
+#### Gerando o certificado e a keystore
 
 Atente-se aos nomes dos hosts (FQDN).
 
@@ -31,14 +34,14 @@ keytool -list -v -keystore /tmp/ssl/kafka.server.keystore.jks -storepass senhain
 keytool -list -rfc -keystore /tmp/ssl/kafka.server.keystore.jks -storepass senhainsegura
 ```
 
-### Certification request
+#### Certification request
 
 É hora de criar o certification request file. Esse arquivo deve ser enviado para a **autoridade certificadora (CA)** pra que seja assinado.
 ```
 keytool -keystore /tmp/ssl/kafka.server.keystore.jks -certreq -file /tmp/ssl/kafka-cert-file -storepass senhainsegura -keypass senhainsegura
 ```
 
-### Assinatura do certificado
+#### Assinatura do certificado
 
 Verifique se o arquivo está acessível:
 ```
@@ -47,7 +50,6 @@ ls -ltrh /tmp/ssl/kafka-cert-file
 Assinando o certificado:
 ```
 openssl x509 -req -CA /tmp/ssl/ca-cert -CAkey /tmp/ssl/ca-key -in /tmp/ssl/kafka-cert-file -out /tmp/ssl/kafka-cert-signed -days 365 -CAcreateserial -passin pass:senhainsegura
-
 ```
 
 **Verificando o certificado assinado**
@@ -57,7 +59,7 @@ Vamos checar o certificado assinado.
 keytool -printcert -v -file /tmp/ssl/kafka-cert-signed
 ```
 
-### Instalando os certificados
+#### Instalando os certificados
 
 Antes de seguir, talvez você queira checar a keystore pra ter a visão do antes e depois:
 ```
@@ -79,6 +81,7 @@ Checando se deu certo:
 keytool -list -v -keystore /tmp/ssl/kafka.server.keystore.jks -storepass senhainsegura
 keytool -list -rfc -keystore /tmp/ssl/kafka.server.keystore.jks -storepass senhainsegura
 ```
+
 Se estamos no caminho certo, o output será algo como:
 ```
 ...
@@ -112,7 +115,7 @@ keytool -list -rfc -keystore /tmp/ssl/kafka.server.truststore.jks -storepass sen
 
 ```
 
-## kafka
+#### server.properties
 
 Verifique se está tudo certo:
 ```
@@ -143,7 +146,7 @@ ssl.key.password=senhainsegura
 ssl.truststore.location=/tmp/ssl/kafka.server.truststore.jks
 ssl.truststore.password=senhainsegura
 ```
-**Atente-se aa referencia a correta keystore e truststore de acordo com o broker.**
+**Atente-se aa referência a correta keystore e truststore de acordo com o broker.**
 </br>
 Agora reinicie o Kafka.
 ```
@@ -151,11 +154,11 @@ kafka-server-stop.sh
 kafka-server-start.sh /opt/kafka/config/server.properties.ssl
 ```
 
-Um disclaimer sobre a truststore. Ela serve para (óbvio!) assinalar quais hosts ou endpoints sao confiaveis. </br>
-A rigor, a aplicacao cliente se conecta no Kafka, nao o contrario. Ou seja, a aplicacao cliente precisa "confiar" nos hosts do cluster e assim apenas ela precisaria de uma truststore.
-**Entao por que entao eh necessario atribuir uma truststore no broker?"</br>
-A razao eh muito simples, lembre-se que quando estamos executando o Kafka em cluster, os brokers se comunicam por varios motivos, incluindo replicacao de dados da partitions leaders para as folowers. Dessa forma um broker1, por exemplo, atua como um cliente do broker2</br>
-Quanto importamos o certiticado publico da CA (ca-cert) para a truststore de cada broker estamos dizendo que os mesmos podem confiar em conexoes de hosts que possuam certificado emitido pela mesma autoridade certificadora.
+Um disclaimer sobre a truststore. Ela serve para (óbvio!) assinalar quais hosts ou endpoints sao confiáveis. </br>
+A rigor, a aplicação cliente se conecta no Kafka, nao o contrario. Ou seja, a aplicacao cliente precisa "confiar" nos hosts do cluster e assim apenas ela precisaria de uma truststore.
+**Então por que entao eh necessario atribuir uma truststore no broker?"</br>
+A razão é muito simples, lembre-se que quando estamos executando o Kafka em cluster, os brokers se comunicam por varios motivos, incluindo replicação de dados da partitions leaders para as folowers. Dessa forma um broker1, por exemplo, atua como um cliente do broker2</br>
+Quanto importamos o certiticado publico da CA (ca-cert) para a truststore de cada broker estamos dizendo que os mesmos podem confiar em conexões de hosts que possuam certificado emitido pela mesma autoridade certificadora.
 </br>
 Verifique se ele começou a responder na porta 9093:
 ```
@@ -170,13 +173,13 @@ Se aparecer CONNECTED, parabéns! </br>
 
 **_Agora repita os mesmos passos para os outros brokers, se houver._ ;)**
 
-## Aplicação cliente
+### Aplicação cliente
 
-Estamos quase lá! Vamos fazer a configuracao SSL na aplicacao cliente.</br>
+Estamos quase lá! Vamos fazer a configuracao SSL na aplicação cliente.</br>
 Perceba que vamos utilizar uma chave para a truststore que é diferente da que usamos no servidor.<br/>
 Algumas pessoas esperam que seja a mesma do servidor, mas não é necessário.
 
-### Truststore
+#### Truststore
 
 Gera a truststore importando a chave publica da autoridade certificadora (CA):
 
@@ -200,21 +203,39 @@ Obviamente essas e outras propriedades não devem ser hard coded. Como boa prát
 ## Segundo teste (SSL)
 
 Vamos refazer o teste. Desta vez, utilizando as classes produtora e consumidora que já apontam para o kafka1 na porta 9093
-#### Janela 1
+#### Janela 1 (PRODUTOR SSL)
+Visualizando o código do produtor:
+```
+nano Encryption/producer-ssl/src/main/java/com/github/infobarbosa/kafka/SslProducer.java
+```
+
+Executando o código do produtor SSL:
 ```
 cd [root path do projeto]
 cd Encryption/producer-ssl/
 mvn clean package
 
 java -jar target/producer-ssl.jar
+
+#ou
+java -jar Encryption/producer-ssl/target/producer-ssl.jar
 ```
 
-#### Janela 2
+#### Janela 2 (CONSUMIDOR SSL)
+Visualizando o código do consumidor SSL:
+```
+nano Encryption/consumer-ssl/src/main/java/com/github/infobarbosa/kafka/SslConsumer.java
+```
+
+Executando o código do consumidor SSL:
 ```
 cd [root path do projeto]
 cd Encryption/consumer-ssl/
 mvn clean package
 java -jar target/consumer-ssl.jar
+
+#ou
+java -jar Encryption/consumer-ssl/target/consumer-ssl.jar
 ```
 
 #### Janela 3. Opcional. tcpdump na porta do servico para "escutar" o conteudo trafegado.
@@ -231,7 +252,6 @@ sudo tcpdump -v -XX  -i lo 'port 9093' -c 1000 -w dump-ssl.txt
 sudo tcpdump -v -XX  -i lo 'port 9093' -c 1000 -x > dump-ssl.txt
 
 sudo tcpdump -v -XX  -i lo 'port 9092' -w dump-plaintext.txt -c 1000
-
 ```
 
 Lembre-se que deixamos o broker respondendo na porta 9092 (plaintext).<br/>
@@ -243,11 +263,11 @@ Quando tiver finalizado sua configuração de listener no broker será parecida 
 listeners=PLAINTEXT://0.0.0.0:9093
 advertised.listeners=PLAINTEXT://brubeck.localdomain:9093
 ```
-## Encriptacao Intebroker
+## Encriptação Intebroker
 
-O setup que fizemos ate aqui garante apenas a encripcao de dados entre a aplicacao cliente e o cluster kafka, mas nao a comunicacao entre os diferentes brokers.
+O setup que fizemos ate aqui garante apenas a encripção de dados entre a aplicação cliente e o cluster kafka, mas não a comunicação entre os diferentes brokers.
 
-Se voce fizer um `tcpdump` em um broker qualquer vai perceber que a porta 9092 ainda esta em uso. Basicamente eh por essa porta que as particoes _followers_ fazem fetch pra se manterem sincronizadas com as particoes _leaders_.
+Se você fizer um `tcpdump` em um broker qualquer vai perceber que a porta 9092 ainda está em uso. Basicamente é por essa porta que as particoes _followers_ fazem fetch pra se manterem sincronizadas com as particoes _leaders_.
 ```
 sudo -i
 tcpdump -v -XX  -i lo 'port 9092' -w dump9092.txt -c 1000
