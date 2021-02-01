@@ -231,15 +231,14 @@ Jul 07 17:57:09 kerberos.infobarbosa.github.com krb5kdc[5304](info): AS_REQ (4 e
 
 ### Etapa 5 - Aplicacao cliente
 
-Essa eh a parte mais facil. Nao eh preciso fazer alteracoes em codigo. :)
-
 Primeiro, abra dois terminais, um para a producer-kerberos e outro para a consumer-kerberos. Mantenha o terminal para o kerberos aberto tambem.
 
 #### producer-kerberos
 ```
-cd producer-kerberos
+cd [root path do projeto]
+nano Authentication/producer-kerberos/src/main/java/com/github/infobarbosa/kafka/SaslAuthenticationProducer.java
 
-java -jar target/producer-kerberos.jar
+java -jar Authentication/producer-kerberos/target/producer-kerberos.jar
 ```
 
 Imediatamente a aplicacao devera iniciar a producao de mensagens no topico 'teste' no Kafka.
@@ -279,9 +278,10 @@ Tambem eh interessante olhar os logs. Imediatamente apos o inicio da execucao, a
 
 #### consumer-kerberos
 ```
-cd consumer-kerberos
+cd [root path do projeto]
+nano Authentication/consumer-kerberos/src/main/java/com/github/infobarbosa/kafka/SaslAuthenticationConsumer.java
 
-java -jar target/consumer-kerberos.jar 
+java -jar Authentication/consumer-kerberos/target/consumer-kerberos.jar
 ```
 
 Da mesma forma serah possivel checar mensagens nos logs:
