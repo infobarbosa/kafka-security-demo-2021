@@ -1,11 +1,12 @@
 broker.id=0
 
-listeners=PLAINTEXT://0.0.0.0:9092,SSL://0.0.0.0:9093,SASL_SSL://0.0.0.0:9094
-advertised.listeners=PLAINTEXT://brubeck.localdomain:9092,SSL://brubeck.localdomain:9093,SASL_SSL://brubeck.localdomain:9094
+listeners=SASL_SSL://0.0.0.0:9094
+advertised.listeners=SASL_SSL://brubeck.localdomain:9094
 
 sasl.enabled.mechanisms=GSSAPI
 sasl.kerberos.service.name=kafka
 
+ssl.protocol = TLSv1.2
 ssl.keystore.location=/tmp/ssl/kafka.server.keystore.jks
 ssl.keystore.password=senhainsegura
 ssl.key.password=senhainsegura
@@ -14,7 +15,8 @@ ssl.truststore.password=senhainsegura
 
 authorizer.class.name=kafka.security.authorizer.AclAuthorizer
 super.users=User:admin;User:kafka
-allow.everyone.if.no.acl.found=true
+security.inter.broker.protocol=SASL_SSL
+allow.everyone.if.no.acl.found=false
 
 num.network.threads=3
 num.io.threads=8
