@@ -10,16 +10,14 @@ Vamos começar com o setup do kafka server.
 ## Teste preliminar
 
 O ideal é fazer um teste antes para se ter uma ideia de antes/depois.</br>
-Entre na instância _kafka-client_ e faça o seguinte:
 ```
-cd kafka-authorized/producer-authorized
+cd [root path do projeto]
 
-java -cp target/producer-authorized.jar
-CTRL+C
+java -jar Authorization/producer-authorized/target/producer-authorized.jar
+#CTRL+C
 
-cd kafka-authorized/consumer-authorized
 
-java -cp target/consumer-authorized.jar
+java -jar Authorization/consumer-authorized/target/consumer-authorized.jar
 CTRL+C
 ```
 Se estiver tudo certo então você tem um ambiente operante, ou seja, consegue produzir e consumir mensagens sem erros.</br>
@@ -37,13 +35,27 @@ vi /etc/kafka/server.properties
 Acrescente as seguintes linhas:
 ```
 authorizer.class.name=kafka.security.authorizer.AclAuthorizer
-allow.everyone.if.no.acl.found=true
 super.users=User:admin;User:kafka
+ssl.protocol = TLSv1.2
 security.inter.broker.protocol=SASL_SSL
+allow.everyone.if.no.acl.found=false
+```
+Ou
+```
+authorizer.class.name=kafka.security.authorizer.AclAuthorizer
+super.users=User:admin;User:kafka
+ssl.protocol = TLSv1.2
+security.inter.broker.protocol=PLAINTEXT
+allow.everyone.if.no.acl.found=true
+
 ```
 Ou
 ```
 super.users=User:admin;User:kafka;User:ANONYMOUS
+```
+
+Precisamos falar desse parâmetro:
+```
 ```
 
 ### Etapa 3 - Reiniciando o Kafka
@@ -109,6 +121,14 @@ kafka-acls.sh \
   --allow-principal User:consumer123 \
   --operation Read \
   --topic teste
+
+kafka-acls.sh \
+  --authorizer-properties zookeeper.connect=brubeck:2181 --remove \
+  --allow-principal User:producer123 \
+  --allow-principal User:consumer123 \
+  --operation Write \
+  --topic teste
+
 ```
 
 ## Quotas
