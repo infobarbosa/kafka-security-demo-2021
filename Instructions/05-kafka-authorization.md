@@ -69,12 +69,25 @@ kafka-server-start.sh -daemon /opt/kafka/config/server.properties.authorized
 ```
 
 
-## Autorização de Leitura
+## `kafka-acls.sh`
 
 Permissões de acesso devem ser feitas através do utilitário `kafka-acls.sh` que vem junto com a sua instalação de Kafka.</br>
 > **Atenção!**</br>
 > Caso o comando `kafka-acls.sh` não seja reconhecido então você pode tentar executar acrescentando o path completo. Por exemplo: `$KAFKA_HOME/bin/kafka-acls.sh`
 
+## Autorização de Escrita
+O comando abaixo concede a permissão de escrita no tópico **teste** para o usuário `producer123` :
+
+```
+kafka-acls.sh \
+  --authorizer-properties zookeeper.connect=brubeck:2181 --add \
+  --allow-principal User:producer123 \
+  --operation Write \
+  --topic teste
+```
+
+
+## Autorização de Leitura
 O comando abaixo concede a permissão de leitura no tópico **teste** para os usuarios `producer123` e `consumer123`:
 
 ```
@@ -94,16 +107,6 @@ kafka-acls.sh \
   --topic teste 
 ```
 
-## Autorização de Escrita
-O comando abaixo concede a permissão de escrita no tópico **teste** para o usuário `producer123` :
-
-```
-kafka-acls.sh \
-  --authorizer-properties zookeeper.connect=brubeck:2181 --add \
-  --allow-principal User:producer123 \
-  --operation Write \
-  --topic teste
-```
 
 ## Listagem das permissões correntes
 ```
